@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap/dist/css/bootstrap.min.css";
+@import "~font-awesome/css/font-awesome.css";
+@import '~@swimlane/ngx-datatable/release/themes/bootstrap.css';
+@import '~@swimlane/ngx-datatable/release/index.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
+
+.ngx-datatable.bootstrap {
+  box-shadow: none;
+  font-size: 13px;
+  padding: 0;
+}
+
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row {
+  padding-top: 0.1rem;
+  padding-right: 0.75rem;
+  padding-bottom: 0.1rem;
+  padding-left: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #d1d4d7;
+}
+
+.datatable-header-cell-label {
+  line-height: 24px;
+  font-weight: bold;
+}

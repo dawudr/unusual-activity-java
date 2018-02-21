@@ -1,0 +1,103 @@
+<div class="container">
+
+  <div class="card">
+
+        <div class="card-header">
+              StockData ID: {{id ? id + ': Edit' : 'Add'}}
+        </div>
+        <div class="card-body">
+          <form novalidate [formGroup]="stockForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>symbol</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="symbol"
+                   placeholder="Enter symbol">
+            <div
+              class="error"
+              *ngIf="stockForm.get('symbol').hasError('required') && stockForm.get('symbol').touched">
+              Symbol is required
+            </div>
+            <div
+              class="error"
+              *ngIf="stockForm.get('symbol').hasError('minlength') && stockForm.get('symbol').touched">
+              Minimum of 2 characters
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>date</label>
+
+            <div class="input-group">
+
+              <input type="datetime-local"
+                     class="form-control"
+                     style="float:none"
+                     formControlName="date">
+
+              <span class="input-group-btn">
+                      <button type="button" class="btn btn-default" (click)="clear()">
+                        <i class="fa fa-times"></i>
+                      </button>
+                      <button type="button" class="btn btn-default" (click)="today()">
+                          <i class="fa fa-calendar"></i>
+                      </button>
+              </span>
+
+            </div>
+
+
+<!--            <div class="btnGroup">
+              <button class="button" type="submit">Submit</button>
+              <button class="button" type="button" (click)="setDate()">Set Today</button>
+              <button class="button" type="button" (click)="resetDate()">Reset Today</button>
+              <button class="button" type="button" (click)="clearDate()">Set Empty</button>
+              <p class="error" *ngIf="stockForm.controls.myDate.errors && stockForm.controls.myDate.errors.required">Date is required!</p>
+              <p class="error" *ngIf="stockForm.controls.myDate.errors && stockForm.controls.myDate.errors.invalidDateFormat">Invalid date format!</p>
+            </div>-->
+          </div>
+
+          <div class="form-group">
+            <label>open</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="open">
+          </div>
+
+          <div class="form-group">
+            <label>close</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="close">
+          </div>
+
+          <div class="form-group">
+            <label>high</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="high">
+          </div>
+
+          <div class="form-group">
+            <label>low</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="low">
+          </div>
+
+          <div class="form-group">
+            <label>volume</label>
+            <input type="text"
+                   class="form-control"
+                   formControlName="volume">
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="!stockForm.valid">Submit</button>
+          <button type="button" class="btn btn-warning" (click)="redirectStockPage()">Cancel</button>
+          <!--<pre>{{stockForm.value | json}}</pre>-->
+        </form>
+        </div>
+
+  </div>
+
+</div>

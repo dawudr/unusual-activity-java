@@ -1,0 +1,103 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <section>
+        <header class="header">
+          <div class="row">
+            <div class="col-md-6">
+              <h1>StockData List</h1>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn-small btn-primary" [routerLink]="['/stock/create']">New User</button>
+            </div>
+          </div>
+
+        </header>
+      </section>
+
+      <section class="main">
+        <ngx-datatable class="bootstrap"
+                       [rows]="stocks"
+                       [loadingIndicator]="loadingIndicator"
+                       [columns]="columns"
+                       [columnMode]="'force'"
+                       [headerHeight]="20"
+                       [footerHeight]="30"
+                       [limit]="100"
+                       [rowHeight]="'auto'"
+                       (page)="onPage($event)"
+                       [reorderable]="reorderable">
+
+
+          <ngx-datatable-column name="Id" prop="id" width="30">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <strong>{{value}}</strong>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column name="Symbol" prop="symbol" width="30">
+            <ng-template let-column="value" ngx-datatable-header-template>
+              <label class="datatable-header-cell-label">Symbol</label><br/>
+              <input
+                type='text'
+                id="symbol"
+                placeholder='Filter..'
+                (keyup)='filterData($event)'/>
+            </ng-template>
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{value}}
+            </ng-template>
+          </ngx-datatable-column>
+
+
+          <ngx-datatable-column name="Date" prop="date" width="30">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{value | date:'yyyy-MM-dd HH:mm:ss'}}
+            </ng-template>
+          </ngx-datatable-column>
+
+
+          <ngx-datatable-column name="Volume" prop="volume" width="30">
+          </ngx-datatable-column>
+
+
+          <ngx-datatable-column name="Action" prop="id" width="30">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <button type="button" class="btn-small btn-success" [routerLink]="['/stock/edit', value]">Edit</button>
+              <button type="button" class="btn-small btn-danger" (click)="deleteStock(value)">Delete</button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+        <!--
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>symbol</th>
+                    <th>date</th>
+                    <th>volume</th>
+                    <th></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let stock of stocks">
+                    <th scope="row">{{stock.id}}</th>
+                    <td>{{stock.symbol}}</td>
+                    <td>{{stock.date | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                    <td>{{stock.volume}}</td>
+                    <td>
+                      <button type="button" class="btn btn-success" [routerLink]="['/stock/edit', stock.id]">Edit</button>
+                      <button type="button" class="btn btn-danger" (click)="deleteStock(stock)">Delete</button>
+                    </td>
+                  </tr>
+
+                  </tbody>
+                </table>
+        -->
+      </section>
+    </div>
+  </div>
+</div>
