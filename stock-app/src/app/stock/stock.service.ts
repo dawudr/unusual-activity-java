@@ -3,13 +3,14 @@ import { Stock } from "./stock";
 import { Http, Response } from "@angular/http";
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 
 @Injectable()
 export class StockService {
 
   private apiUrl = 'http://localhost:8080/api/stock';
+  private apiUrl2 = 'http://localhost:8080/api/intraday';
 
   constructor(private http: Http) {
   }
@@ -45,6 +46,19 @@ export class StockService {
       .catch(this.handleError);
   }
 
+  importDaily(): Observable<Stock[]> {
+    console.log("importDaily Stock Feed")
+    return this.http.get(this.apiUrl + '/import/start')
+      .map((res:Response) => res.json())
+      .catch(this.handleError);
+  }
+
+  importIntraday(): Observable<Stock[]> {
+    console.log("importIntraday Stock Feed")
+    return this.http.get(this.apiUrl2 + '/import/start')
+      .map((res:Response) => res.json())
+      .catch(this.handleError);
+  }
 
   private extractData(res: Response) {
     let body = res.json();

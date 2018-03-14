@@ -1,47 +1,50 @@
 package com.financialjuice.unusualactivity.batch;
 
-import com.financialjuice.unusualactivity.model.Symbol;
+import com.financialjuice.unusualactivity.model.SymbolData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-public class SymbolItemProcessor implements ItemProcessor<Symbol, Symbol> {
+public class SymbolItemProcessor implements ItemProcessor<SymbolData, SymbolData> {
 
     private static final Logger log = LoggerFactory.getLogger(SymbolItemProcessor.class);
 
     @Override
-    public Symbol process(final Symbol symbol){
-        log.debug("Process transform on Symbol input {}", symbol.toString());
+    public SymbolData process(final SymbolData symbolData){
+        log.debug("Process transform on SymbolData input {}", symbolData.toString());
 
         final String transformedSymbolName;
 
         // TODO: Parametise
-        String exchange = "LSE";
-        String datatype = "Equities";
+        String exchange = "";
+        String inSymbol = symbolData.getSymbol();
         switch(exchange) {
             case "LSE":
-                String inSymbol = symbol.getSymbol();
                 if(inSymbol.endsWith(".")) {
-                    transformedSymbolName = symbol.getSymbol() + "L";
+                    transformedSymbolName = symbolData.getSymbol() + "L";
                 } else if (inSymbol.contains(".")) {
                     transformedSymbolName = inSymbol.replace(".", "-") + ".L";
                 } else {
-                    transformedSymbolName = symbol.getSymbol() + ".L";
+                    transformedSymbolName = symbolData.getSymbol() + ".L";
                 }
+                exchange = "LSE";
                 break;
             case "NYSE":
-                transformedSymbolName = symbol.getSymbol();
+                if(inSymbol.endsWith(".")) {
+                    transformedSymbolName = symbolData.getSymbol().replace(".", "");
+                } else {
+                    transformedSymbolName = symbolData.getSymbol();
+                }
+                exchange = "NYSE";
                 break;
             default:
-                transformedSymbolName = symbol.getSymbol();
+                transformedSymbolName = symbolData.getSymbol();
         }
 
-        Symbol transformedSymbol = symbol;
-        log.info("Converting symbol (" + symbol.getSymbol() + ") into (" + transformedSymbolName + ")");
-        transformedSymbol.setSymbol(transformedSymbolName);
-        transformedSymbol.setExchange(exchange);
-        transformedSymbol.setDatatype(datatype);
-        return transformedSymbol;
+        SymbolData transformedSymbolData = symbolData;
+        log.info("Converting symbolData (" + symbolData.getSymbol() + ") into (" + transformedSymbolName + ")");
+        transformedSymbolData.setSymbol(transformedSymbolName);
+        return transformedSymbolData;
 
     }
 }

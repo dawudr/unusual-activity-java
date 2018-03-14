@@ -3,16 +3,13 @@ package com.financialjuice.unusualactivity.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-public class StockData extends AuditData {
+public class StockData extends AuditData implements Comparable<StockData> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,6 +22,10 @@ public class StockData extends AuditData {
     private double high;
     private double low;
     private long volume;
+
+//    @ManyToOne(optional=true)
+//    @JoinColumn(name = "symbol", insertable=false, updatable=false)
+//    private SymbolData symbolData;
 
     public StockData() {
         if (this.getCreatedAt() == null)
@@ -109,6 +110,14 @@ public class StockData extends AuditData {
         this.volume = volume;
     }
 
+//    public SymbolData getSymbolData() {
+//        return symbolData;
+//    }
+//
+//    public void setSymbolData(SymbolData symbolData) {
+//        this.symbolData = symbolData;
+//    }
+
     @Override
     public String toString() {
         return "StockData{" +
@@ -140,5 +149,10 @@ public class StockData extends AuditData {
     @Override
     public int hashCode() {
         return Objects.hash(date, symbol, open, close, high, low, volume);
+    }
+
+    @Override
+    public int compareTo(StockData o) {
+        return symbol.compareTo(o.getSymbol());
     }
 }

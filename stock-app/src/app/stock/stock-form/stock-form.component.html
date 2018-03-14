@@ -1,4 +1,14 @@
+<br/>
 <div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="">Home</a></li>
+    <li class="breadcrumb-item"><a href="/features">Home</a></li>
+    <li class="breadcrumb-item"><a href="/stock">Data Tables</a></li>
+    <li class="breadcrumb-item active">Edit Data</li>
+  </ol>
+
+  <h1>Edit Data</h1>
+
 
   <div class="card">
 
@@ -8,7 +18,7 @@
         <div class="card-body">
           <form novalidate [formGroup]="stockForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label>symbol</label>
+            <label>symbolData</label>
             <input type="text"
                    class="form-control"
                    formControlName="symbol"

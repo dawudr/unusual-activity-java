@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/ng-packagr/package.schema.json",
+  "name": "ngx-toastr",
+  "version": "8.3.0",
+  "sideEffects": false,
+  "peerDependencies": {
+    "@angular/core": ">=5.0.0",
+    "@angular/common": ">=5.0.0",
+    "@angular/platform-browser": ">=5.0.0",
+    "rxjs": ">=5.5.0"
+  },
+  "ngPackage": {
+    "lib": {
+      "entryFile": "public_api.ts"
+    },
+    "dest": "../../dist"
+  },
+  "repository": "https://github.com/scttcper/ngx-toastr.git",
+  "homepage": "https://github.com/scttcper/ngx-toastr",
+  "bugs": "https://github.com/scttcper/ngx-toastr/issues",
+  "license": "MIT",
+  "description": "Toastr for Angular",
+  "keywords": [
+    "ng2",
+    "ngx",
+    "ngx-toastr",
+    "toastr-ng2",
+    "angular",
+    "angular2",
+    "typescript",
+    "alert",
+    "toast",
+    "toastr",
+    "angular toastr",
+    "notifications"
+  ]
+}

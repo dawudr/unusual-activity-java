@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * | Annotation | Meaning                                             |
@@ -17,14 +16,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableJpaAuditing
 @EnableAutoConfiguration
-@EnableAsync
-//@EnableBatchProcessing
 @SpringBootApplication
-public class UnusualActivityApplication {
+public class Application {
 
 	public static void main(String[] args) {
 
-		SpringApplication.run(UnusualActivityApplication.class, args);
+		SpringApplication.run(Application.class, args);
 
 	}
 

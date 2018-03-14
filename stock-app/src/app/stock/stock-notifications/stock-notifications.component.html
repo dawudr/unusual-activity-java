@@ -1,0 +1,82 @@
+<meta http-equiv="refresh" content="300;URL='/'" />
+<br/>
+<div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item active">Alerts</li>
+  </ol>
+
+<div class="jumbotron">
+  <h1 class="display-3">Notifications</h1>
+  <p class="lead">Live Alerts of Unusual Activity in Volumes Traded </p>
+  <hr class="my-4">
+  <p>Last scanned was done on {{momentAgo}} - <span class="badge badge-primary badge-pill">{{timeAgo}}</span></p>
+  <p class="lead">
+    <button (click)="doAction()" type="button" class="btn btn-primary btn-lg">
+      Scan markets now >>
+    </button>
+<!--    <button (click)="clearLastToast()" type="button" class="btn btn-primary btn-lg">
+      Clear Last Alert >>
+    </button>-->
+<!--    <button (click)="clearToasts()" type="button" class="btn btn-primary btn-lg">
+      Clear Alerts >>
+    </button>-->
+  </p>
+</div>
+
+
+<!--
+<div class="container">
+<div class="row">
+  <div class="col-12 text-center">
+    <p class="mb-1">
+      <small>Toast Controls:</small>
+    </p>
+    <div class="row justify-content-center">
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12 mb-3">
+        <button (click)="openToast()" type="button" class="btn btn-primary btn-block">
+          Open Toast
+        </button>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
+        <button (click)="clearLastToast()" type="button" class="btn btn-outline-primary btn-block">
+          Clear Last Toast
+        </button>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
+        <button (click)="clearToasts()" type="button" class="btn btn-outline-primary btn-block">
+          Clear All Toasts
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+-->
+
+
+<div class="container">
+<div class="list-group">
+
+
+  <a *ngFor="let stock of stocks" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{stock.symbol}}</h5>
+      <small class="badge badge-light badge-pill">{{stock.date | date:'medium'}}</small>
+    </div>
+    <p class="mb-1">Volume peaked at {{stock.volume}}</p>
+    <small>Price was {{stock.close}}</small>
+  </a>
+  <a *ngFor="let stock of stocksh" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{stock.symbol}}</h5>
+      <small class="badge badge-light badge-pill">{{stock.date | date:'medium'}}</small>
+    </div>
+    <p class="mb-1">Volume peaked at {{stock.volume}}</p>
+    <small>Price was {{stock.close}}</small>
+  </a>
+</div>
+
+</div>
+
+</div>

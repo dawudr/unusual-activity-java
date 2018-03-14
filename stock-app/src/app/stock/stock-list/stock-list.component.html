@@ -1,4 +1,12 @@
+<br/>
 <div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="">Home</a></li>
+    <li class="breadcrumb-item"><a href="/features">Home</a></li>
+    <li class="breadcrumb-item active">Data Tables</li>
+  </ol>
+
+
   <div class="row">
     <div class="col">
       <section>
@@ -11,7 +19,7 @@
 
             </div>
             <div class="col-md-2">
-              <button type="button" class="btn-small btn-primary" [routerLink]="['/stock/create']">New User</button>
+              <button type="button" class="btn btn-primary" [routerLink]="['/stock/create']">New Record</button>
             </div>
           </div>
 
@@ -76,7 +84,7 @@
                   <thead>
                   <tr>
                     <th>#</th>
-                    <th>symbol</th>
+                    <th>symbolData</th>
                     <th>date</th>
                     <th>volume</th>
                     <th></th>
@@ -85,7 +93,7 @@
                   <tbody>
                   <tr *ngFor="let stock of stocks">
                     <th scope="row">{{stock.id}}</th>
-                    <td>{{stock.symbol}}</td>
+                    <td>{{stock.symbolData}}</td>
                     <td>{{stock.date | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                     <td>{{stock.volume}}</td>
                     <td>

@@ -1,0 +1,86 @@
+<br/>
+<div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item active">Features</li>
+  </ol>
+
+  <div class="jumbotron">
+    <h1 class="display-3">Features</h1>
+    <p class="lead">Volume Analysis Tools and Data Feeds Management</p>
+  </div>
+
+
+
+  <div class="row mb-3">
+
+    <div class="col-4">
+      <div class="card text-white bg-primary mb-3" style="max-width: 20rem; height: 20rem;">
+        <div class="card-header">Live Alerts</div>
+        <div class="card-body">
+          <h4 class="card-title">Watch Live Alerts</h4>
+          <p class="card-text">Scan market data and generate live Alerts of Unusual Activity in Volumes Traded.</p>
+        </div>
+        <div class="card-footer">
+          <a class="btn btn-light" href="/stock/notify" role="button">Open</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="card text-white bg-primary mb-3" style="max-width: 20rem; height: 20rem;">
+        <div class="card-header">Data Tables</div>
+        <div class="card-body">
+          <h4 class="card-title">View Data Table</h4>
+          <p class="card-text">Manually add, edit and remove financial data feed records in the database.</p>
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-light" href="/stock" role="button">Open</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="card text-white bg-primary mb-3" style="max-width: 20rem; height: 20rem;">
+        <div class="card-header">Charts</div>
+        <div class="card-body">
+          <h4 class="card-title">Analyse Charts</h4>
+          <p class="card-text">Generate box plot charts based on computation of percentiles and intraday feeds</p>
+        </div>
+        <div class="card-footer">
+          <a class="btn btn-light" href="/stock/chart" role="button">Open</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="card text-white bg-primary mb-3" style="max-width: 20rem; height: 20rem;">
+        <div class="card-header">Symbol Data</div>
+        <div class="card-body">
+          <h4 class="card-title">Import Symbol Data</h4>
+          <p class="card-text">Run batch import of Symbol Data from latest CSV file from Exchange</p>
+        </div>
+        <div class="card-footer">
+          <a class="btn btn-light" href="/api/symbol//import/lse" role="button">Import LSE</a>
+          <a class="btn btn-light" href="/api/symbol//import/lse" role="button">Import NYSE</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="card text-white bg-primary mb-3" style="max-width: 20rem; height: 20rem;">
+        <div class="card-header">Stock Data</div>
+        <div class="card-body">
+          <h4 class="card-title">Import Stock Data</h4>
+          <p class="card-text">Download stock feeds data from data API and import into database.</p>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-light" (click)="importDaily()" role="button">Update Daily</button>
+          <button type="button" class="btn btn-light" (click)="importIntraday()" role="button">Update Intraday</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

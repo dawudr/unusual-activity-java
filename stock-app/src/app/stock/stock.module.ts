@@ -6,6 +6,9 @@ import { StockFormComponent } from './stock-form/stock-form.component';
 import { FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { StockChartComponent } from './stock-chart/stock-chart.component';
+import { NvD3Module } from 'ng2-nvd3';
+import { StockNotificationsComponent } from './stock-notifications/stock-notifications.component';
 
 @NgModule({
   imports: [
@@ -14,8 +17,9 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
     ReactiveFormsModule,
     FormsModule, // <-- import the FormsModule before binding with [(ngModel)]
     NgbModule.forRoot(),
-    NgxDatatableModule
+    NgxDatatableModule,
+    NvD3Module
   ],
-  declarations: [StockListComponent, StockFormComponent]
+  declarations: [StockListComponent, StockFormComponent, StockChartComponent, StockNotificationsComponent]
 })
 export class StockModule { }

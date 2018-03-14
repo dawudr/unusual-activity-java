@@ -1,6 +1,6 @@
 package com.financialjuice.unusualactivity.batch;
 
-import com.financialjuice.unusualactivity.model.Symbol;
+import com.financialjuice.unusualactivity.model.SymbolData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -22,25 +22,9 @@ import org.springframework.core.io.ClassPathResource;
 
 @Configuration
 @EnableBatchProcessing
-//spring boot configuration
-//@EnableAutoConfiguration
-// file that contains the properties
-//@PropertySource("classpath:application.properties")
-public class SymbolBatchConfiguration {
+public class SymbolImporterJobConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(SymbolBatchConfiguration.class);
-
-    @Value("${database.driver}")
-    private String databaseDriver;
-    @Value("${database.url}")
-    private String databaseUrl;
-    @Value("${database.username}")
-    private String databaseUsername;
-    @Value("${database.password}")
-    private String databasePassword;
-
-    @Value("${csv.import.symbol.file}")
-    private String symbolCsvFile;
+    private static final Logger log = LoggerFactory.getLogger(SymbolImporterJobConfiguration.class);
 
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -48,7 +32,11 @@ public class SymbolBatchConfiguration {
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
-    public SymbolBatchConfiguration() {
+
+    @Value("${file.import.companies.lse}")
+    public String fileName;
+
+    public SymbolImporterJobConfiguration() {
         log.info("Constructor SymbolBatchConfiguration");
     }
 
@@ -58,16 +46,17 @@ public class SymbolBatchConfiguration {
      * @return
      */
     @Bean
-    public ItemReader<Symbol> reader() {
-        FlatFileItemReader<Symbol> reader = new FlatFileItemReader<Symbol>();
-        reader.setResource(new ClassPathResource(symbolCsvFile));
+    public ItemReader<SymbolData> reader() {
+
+        FlatFileItemReader<SymbolData> reader = new FlatFileItemReader<SymbolData>();
+        reader.setResource(new ClassPathResource(fileName));
         reader.setLinesToSkip(1);
-        reader.setLineMapper(new DefaultLineMapper<Symbol>() {{
+        reader.setLineMapper(new DefaultLineMapper<SymbolData>() {{
             setLineTokenizer(new SymbolDelimitedLineTokenizer());
             // TODO: The exception is pretty self explanatory.  BeanWrapperFieldSetMapper allows for fuzzy matching on the names. You can configure how fuzzy it is via the distance. You can read more about setting that distance in the javadoc here: https://docs.spring.io/spring-batch/trunk/apidocs/org/springframework/batch/item/file/mapping/BeanWrapperFieldSetMapper.html#setDistanceLimit-int-
             // https://stackoverflow.com/questions/46836681/spring-batch-flatfileitemreader-token-is-of-type-object
-//            setFieldSetMapper(new BeanWrapperFieldSetMapper<Symbol>() {{
-//                setTargetType(Symbol.class);
+//            setFieldSetMapper(new BeanWrapperFieldSetMapper<SymbolData>() {{
+//                setTargetType(SymbolData.class);
 //            }});
             setFieldSetMapper(new SymbolFieldSetMapper());
         }});
@@ -79,7 +68,7 @@ public class SymbolBatchConfiguration {
      * to transform the data read
      */
     @Bean
-    public ItemProcessor<Symbol, Symbol> processor() {
+    public ItemProcessor<SymbolData, SymbolData> processor() {
         return new SymbolItemProcessor();
     }
 
@@ -87,8 +76,8 @@ public class SymbolBatchConfiguration {
      * Nothing special here a simple JpaItemWriter
      */
     @Bean
-    public ItemWriter<Symbol> writer() {
-//        JpaItemWriter writer = new JpaItemWriter<Symbol>();
+    public ItemWriter<SymbolData> writer() {
+//        JpaItemWriter writer = new JpaItemWriter<SymbolData>();
 //        writer.setEntityManagerFactory(entityManagerFactory().getObject());
         SymbolWriter writer = new SymbolWriter();
         return writer;
@@ -100,9 +89,12 @@ public class SymbolBatchConfiguration {
      * This method declare the steps that the batch has to follow
      */
     @Bean
-    public Job importSymbolJob(JobBuilderFactory jobs, Step s1) {
-        log.info("Starting Import Symbol Job");
-        return jobBuilderFactory.get("importSymbolJob")
+    public Job job_SymbolImporter() {
+        log.info("Starting Import SymbolData Job");
+
+
+
+        return jobBuilderFactory.get("job_SymbolImporter")
                 .incrementer(new RunIdIncrementer()) // because a spring config bug, this incrementer is not really useful
                 .flow(step1())
                 .end()
@@ -116,54 +108,11 @@ public class SymbolBatchConfiguration {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .<Symbol, Symbol> chunk(100)
+                .<SymbolData, SymbolData> chunk(100)
                 .reader(reader())
                 .processor(processor())
                 .writer(writer())
                 .build();
     }
     // end::jobstep[]
-
-
-    /**
-     * As data source we use an external database
-     *
-     * @return
-     */
-
-//    @Bean
-//    public DataSource dataSource() {
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        dataSource.setDriverClassName(databaseDriver);
-//        dataSource.setUrl(databaseUrl);
-//        dataSource.setUsername(databaseUsername);
-//        dataSource.setPassword(databasePassword);
-//        return dataSource;
-//    }
-//
-//
-//    @Bean
-//    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-//
-//        LocalContainerEntityManagerFactoryBean lef = new LocalContainerEntityManagerFactoryBean();
-//        lef.setPackagesToScan("com.financialjuice.unusualactivity.batch");
-//        lef.setDataSource(dataSource());
-//        lef.setJpaVendorAdapter(jpaVendorAdapter());
-//        lef.setJpaProperties(new Properties());
-//        return lef;
-//    }
-//
-//
-//    @Bean
-//    public JpaVendorAdapter jpaVendorAdapter() {
-//        HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-//        jpaVendorAdapter.setDatabase(Database.MYSQL);
-//        jpaVendorAdapter.setGenerateDdl(true);
-//        jpaVendorAdapter.setShowSql(false);
-//
-//        jpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQLDialect");
-//        return jpaVendorAdapter;
-//    }
-
-
 }

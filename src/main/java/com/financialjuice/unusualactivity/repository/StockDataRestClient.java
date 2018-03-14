@@ -15,7 +15,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -53,17 +54,46 @@ public class StockDataRestClient {
     }
 
     private URI getRequestURL(String symbol, TimeSeries t) {
-        return new HttpUrl.Builder()
-                .scheme("https")
-                .host("www.alphavantage.co")
-                .addPathSegments("query")
-                .addQueryParameter("function", t.toString())
-                .addQueryParameter("symbol", symbol)
-                .addQueryParameter("outputsize", outputsize)
-                .addQueryParameter("apikey", apikey)
-                .build().uri();
-    }
 
+        URI requestUri;
+        switch (t) {
+            case DAILY:
+                requestUri = new HttpUrl.Builder()
+                        .scheme("https")
+                        .host("www.alphavantage.co")
+                        .addPathSegments("query")
+                        .addQueryParameter("function", t.toString())
+                        .addQueryParameter("symbol", symbol)
+                        .addQueryParameter("outputsize", outputsize)
+                        .addQueryParameter("apikey", apikey)
+                        .build().uri();
+                break;
+            case INTRADAY:
+                // TODO: parametise interval
+                requestUri = new HttpUrl.Builder()
+                        .scheme("https")
+                        .host("www.alphavantage.co")
+                        .addPathSegments("query")
+                        .addQueryParameter("function", t.toString())
+                        .addQueryParameter("interval", "60min")
+                        .addQueryParameter("symbol", symbol)
+                        .addQueryParameter("outputsize", outputsize)
+                        .addQueryParameter("apikey", apikey)
+                        .build().uri();
+                break;
+            default:
+                requestUri = new HttpUrl.Builder()
+                        .scheme("https")
+                        .host("www.alphavantage.co")
+                        .addPathSegments("query")
+                        .addQueryParameter("function", t.toString())
+                        .addQueryParameter("symbol", symbol)
+                        .addQueryParameter("outputsize", outputsize)
+                        .addQueryParameter("apikey", apikey)
+                        .build().uri();
+        }
+        return requestUri;
+    }
 
     @Retryable(maxAttempts = 5, value = {RuntimeException.class, HttpServerErrorException.class} , backoff = @Backoff(delay = 10000, multiplier = 2))
     public List<StockData> getStockData(String symbol, TimeSeries function) {
@@ -85,12 +115,15 @@ public class StockDataRestClient {
                         JsonNode timeSeriesNode_l0 = root.get("Time Series (Daily)");
                         if (!timeSeriesNode_l0.isNull()) {
                             Iterator<Map.Entry<String, JsonNode>> elements = timeSeriesNode_l0.fields();
-                            log.debug("Fetched: [{}] stockdata elements from request for Symbol:[{}]", timeSeriesNode_l0.size(), symbol);
+                            log.debug("Fetched: [{}] stockdata elements from request for SymbolData:[{}]", timeSeriesNode_l0.size(), symbol);
                             while (elements.hasNext()) {
                                 Map.Entry<String, JsonNode> entry = elements.next();
                                 String dateStr = entry.getKey();
-                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                                Date date = formatter.parse(dateStr);
+//                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                LocalDate dateToConvert = LocalDate.parse(dateStr);
+                                Date date = java.util.Date.from(dateToConvert.atStartOfDay()
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant());
                                 JsonNode dataNode_l1 = entry.getValue();
                                 double open = dataNode_l1.get("1. open").asDouble();
                                 double high = dataNode_l1.get("2. high").asDouble();
@@ -123,6 +156,7 @@ public class StockDataRestClient {
         }
 //        assertThat(name.asText(), notNullValue());
     }
+
 
 
     public static void main(String[] args) {

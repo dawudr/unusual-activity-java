@@ -8,7 +8,7 @@ import javax.persistence.Id;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-public class Symbol extends AuditData {
+public class SymbolData extends AuditData {
 
     @Id
     @NotBlank
@@ -26,15 +26,17 @@ public class Symbol extends AuditData {
     private String marketcap; // £42.19 in £m
     private String fcacategory; // Premium Equity Commercial Companies
 
-    public Symbol() {
+
+    public SymbolData() {
     }
 
-    public Symbol(String symbol, String name) {
+    public SymbolData(String symbol, String name) {
         this.symbol = symbol;
         this.name = name;
     }
 
-    public Symbol(String name, String instrumentname, String exchange, String market, String datatype, String industry, String sector, String startdate, String country, String currency, String marketcap, String fcacategory) {
+    public SymbolData(String symbol, String name, String instrumentname, String exchange, String market, String datatype, String industry, String sector, String startdate, String country, String currency, String marketcap, String fcacategory) {
+        this.symbol = symbol;
         this.name = name;
         this.instrumentname = instrumentname;
         this.exchange = exchange;
@@ -155,7 +157,7 @@ public class Symbol extends AuditData {
 
     @Override
     public String toString() {
-        return "Symbol{" +
+        return "SymbolData{" +
                 "symbol='" + symbol + '\'' +
                 ", name='" + name + '\'' +
                 ", instrumentname='" + instrumentname + '\'' +
@@ -164,11 +166,11 @@ public class Symbol extends AuditData {
                 ", datatype='" + datatype + '\'' +
                 ", industry='" + industry + '\'' +
                 ", sector='" + sector + '\'' +
-                ", startdate=" + startdate +
+                ", startdate='" + startdate + '\'' +
                 ", country='" + country + '\'' +
                 ", currency='" + currency + '\'' +
-                ", marketcap=" + marketcap +
-                ", fcacategory='" + fcacategory + '\'' +
+                ", marketcap='" + marketcap + '\'' +
+                ", fcacategory='" + fcacategory +
                 '}';
     }
 }

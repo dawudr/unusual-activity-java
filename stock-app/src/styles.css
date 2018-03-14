@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-@import "~bootstrap/dist/css/bootstrap.min.css";
+/*@import "~bootstrap/dist/css/bootstrap.min.css";*/
+@import "assets/united/bootstrap.css";
+@import "assets/toastr/toastr.css";
 @import "~font-awesome/css/font-awesome.css";
 @import '~@swimlane/ngx-datatable/release/themes/bootstrap.css';
 @import '~@swimlane/ngx-datatable/release/index.css';

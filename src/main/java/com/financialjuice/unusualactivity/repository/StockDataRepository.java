@@ -53,6 +53,30 @@ public interface StockDataRepository extends JpaRepository<StockData, Long> {
             "WHERE s.symbol = :symbol")
     public Date getLastUpdated(@Param("symbol") String symbol);
 
-    public List<StockData> findAllBySymbol(String s);
+    @Query("SELECT MAX(s.date) " +
+            "FROM StockData s ")
+    public Date getLastUpdatedAll();
 
+    public List<StockData> findAllBySymbol(String symbol);
+
+    public List<StockData> findAllBySymbolAndDateAfter(String symbol, Date date);
+
+    // TODO: FIX me.
+    @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.symbol = :symbol AND sd.date BETWEEN :startDate AND :endDate")
+    public List<StockData> findAllBySymbolAndDateBetweenAndDate(@Param("symbol") String symbol, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    public List<StockData> findAllByDateAfterOrderBySymbol(Date date);
+
+    public List<StockData> findAllByDateOrderBySymbol(Date date);
+
+    public List<StockData> findAllByDateAfterOrderByDate(Date date);
+
+    // TODO: Fix me
+    @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.date = :date")
+    public List<StockData> findAllBySectorAndDateAfter(@Param("date") Date date);
+//    public List<StockData> findAllBySectorAndDateAfter(String sector, Date date);
+
+    // TODO: Fix me
+    @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.date = (SELECT MAX(s.date) from StockData s)")
+    public List<StockData> getLatest();
 }
