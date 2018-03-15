@@ -14,8 +14,7 @@
     "start-dev2": "http-server",
     "pree2e": "webdriver-manager update",
     "preinstall": "npm install -g http-server",
-    "postinstall-dev-2": "ng build && mv dist/* .",
-    "postinstall": "ng build --aot -prod",
+    "postinstall": "ng build --aot --target=production",
     "deploy": "git push origin master && git push heroku master"
   },
   "private": true,
