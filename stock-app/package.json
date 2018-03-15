@@ -19,7 +19,7 @@
     "deploy": "git push origin master && git push heroku master"
   },
   "private": true,
-  "dependencies": {git diff
+  "dependencies": {
     "@angular/animations": "^5.2.8",
     "@angular/cli": "1.6.7",
     "@angular/common": "^5.2.0",
