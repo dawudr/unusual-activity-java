@@ -10,8 +10,7 @@ declare let d3: any;
   templateUrl: './stock-chart.component.html',
   // include original styles
   styleUrls: [
-    './stock-chart.component.css',
-    './../../../../node_modules/nvd3/build/nv.d3.css'
+    './stock-chart.component.css'
   ],
   providers: [ChartService],
   encapsulation: ViewEncapsulation.None
