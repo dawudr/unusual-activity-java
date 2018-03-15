@@ -9,8 +9,8 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class StockService {
 
-  private apiUrl = 'http://localhost/api/stock';
-  private apiUrl2 = 'http://localhost/api/intraday';
+  private apiUrl = 'http://localhost:8080/api/stock';
+  private apiUrl2 = 'http://localhost:8080/api/intraday';
 
   // private apiUrl = 'http://evening-plateau-95719.herokuapp.com/api/stock';
   // private apiUrl2 = 'http://evening-plateau-95719.herokuapp.com//api/intraday';
