@@ -5,7 +5,8 @@ import {Observable} from "rxjs/Observable";
 @Injectable()
 export class ChartService {
 
-  private apiUrl = 'http://localhost:8080/api/stats';
+  // private apiUrl = 'http://localhost:8080/api/stats';
+  private apiUrl = 'http://evening-plateau-95719.herokuapp.com//api/stats';
 
   constructor(private http: Http) {
   }

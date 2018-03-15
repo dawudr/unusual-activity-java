@@ -6,7 +6,9 @@ import {Stock} from "./stock";
 @Injectable()
 export class NotificationsService {
 
-  private apiUrl = 'http://localhost:8080/api/notify';
+  // private apiUrl = 'http://localhost:8080/api/notify';
+  private apiUrl = 'http://evening-plateau-95719.herokuapp.com/api/notify';
+
   private dataSubject: BehaviorSubject<Stock[]> = new BehaviorSubject([]);
 
   data$: Observable<Stock[]> = this.dataSubject.asObservable();
