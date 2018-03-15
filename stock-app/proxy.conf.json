@@ -1,6 +1,6 @@
 {
   "/**": {
-    "target": "http://localhost:8080",
+    "target": "http://evening-plateau-95719.herokuapp.com",
     "secure": false
     }
 }
