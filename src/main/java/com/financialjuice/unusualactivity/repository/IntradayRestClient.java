@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,8 +63,8 @@ public class IntradayRestClient {
                         log.debug("Response Body as JSON: " + root.toString());
 
                         log.debug("Fetched stockdata for SymbolData:[{}]", symbol);
-                        LocalDateTime dateToConvert = LocalDateTime.parse(root.get("latestUpdate").asText());
-                        Date date = java.sql.Timestamp.valueOf(dateToConvert);
+                        Date date = new Date();
+                        date.setTime(root.get("latestUpdate").asLong());
                         double open = root.get("open").asDouble();
                         double high = root.get("high").asDouble();
                         double low = root.get("low").asDouble();
