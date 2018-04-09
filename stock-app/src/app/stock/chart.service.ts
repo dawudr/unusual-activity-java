@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Http, Response} from "@angular/http";
 import {Observable} from "rxjs/Observable";
+import {API_HOST} from "../../constants";
 
 @Injectable()
 export class ChartService {
 
   //private apiUrl = 'http://localhost:8080/api/stats';
-  private apiUrl = 'http://moon-dragon.westeurope.cloudapp.azure.com:8080/api/stats';
+  private apiUrl = API_HOST + '/api/stats';
 
   constructor(private http: Http) {
   }

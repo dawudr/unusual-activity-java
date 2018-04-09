@@ -1,40 +1,26 @@
-package com.financialjuice.unusualactivity.model;
+package com.financialjuice.unusualactivity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.*;
 import java.util.Date;
-import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Entity(name = "StockData")
-@Table(name = "stockdata")
-public class StockData extends AuditData implements Comparable<StockData> {
+public class StockDataDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private Date date;
-    @NotBlank
     private String symbol;
     private double open;
     private double close;
     private double high;
     private double low;
     private long volume;
+    private String name;
 
-//    @ManyToOne(optional=true)
-//    @JoinColumn(name = "symbol", insertable=false, updatable=false)
-//    private SymbolData symbolData;
-
-    public StockData() {
-        if (this.getCreatedAt() == null)
-            this.setCreatedAt(new Date());
-        this.setUpdatedAt(new Date());
+    public StockDataDTO() {
     }
 
-    public StockData(Date date, String symbol, Double open, Double close, Double high, Double low, Long volume) {
+    public StockDataDTO(Date date, String symbol, Double open, Double close, Double high, Double low, long volume, String name) {
         this.date = date;
         this.symbol = symbol;
         this.open = open;
@@ -42,9 +28,7 @@ public class StockData extends AuditData implements Comparable<StockData> {
         this.high = high;
         this.low = low;
         this.volume = volume;
-        if (this.getCreatedAt() == null)
-            this.setCreatedAt(new Date());
-        this.setUpdatedAt(new Date());
+        this.name = name;
     }
 
     public long getId() {
@@ -111,6 +95,14 @@ public class StockData extends AuditData implements Comparable<StockData> {
         this.volume = volume;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "StockData{" +
@@ -122,30 +114,8 @@ public class StockData extends AuditData implements Comparable<StockData> {
                 ", high=" + high +
                 ", low=" + low +
                 ", volume=" + volume +
+                ", name=" + name +
                 '}';
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StockData stockData = (StockData) o;
-        return Double.compare(stockData.open, open) == 0 &&
-                Double.compare(stockData.close, close) == 0 &&
-                Double.compare(stockData.high, high) == 0 &&
-                Double.compare(stockData.low, low) == 0 &&
-                volume == stockData.volume &&
-                Objects.equals(date, stockData.date) &&
-                Objects.equals(symbol, stockData.symbol);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(date, symbol, open, close, high, low, volume);
-    }
-
-    @Override
-    public int compareTo(StockData o) {
-        return symbol.compareTo(o.getSymbol());
-    }
 }
+

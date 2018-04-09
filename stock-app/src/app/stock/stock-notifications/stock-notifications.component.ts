@@ -14,6 +14,8 @@ import {NotificationsService} from "../notifications.service";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import 'rxjs/add/operator/takeUntil';
+import {Alert} from "../alert";
+import {DatatableComponent} from "@swimlane/ngx-datatable";
 
 // See https://stackoverflow.com/questions/44947551/angular2-4-refresh-data-realtime
 // https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription/41177163#41177163
@@ -68,9 +70,9 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
 
   momentAgo: string = moment().startOf('minute').fromNow();
-  timeAgo: string = moment().format('MMMM Do YYYY, h:mm:ss a');
-  stocks: Stock[];
-  stocksh: Stock[];
+  timeAgo: string = moment().format('MMMM Do YYYY, h:mm');
+  stocks: Alert[];
+  stocksh: Alert[];
 
   // Toastr Params
   options: GlobalConfig;
@@ -80,9 +82,37 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
   version = VERSION;
   enableBootstrap = true;
   progressBar = true;
-  extendedTimeOut = 1000;
-  easing = 'ease-in';
+  extendedTimeOut = 150000;
+  easing = '30000';
   progressAnimation = 'decreasing';
+  timeOut = 30000;
+
+
+  columns = [
+      { prop: 'volumeChange' },
+      { prop: 'stockData.symbol' },
+      { prop: 'stockData.name' },
+      { prop: 'volumeChangePct' },
+      { prop: 'volumeChange' },
+      { prop: 'stockData.date' },
+      { prop: 'stockData' }
+  ];
+
+
+  columnWidths = [
+      {column: "volumeChange", width: 10},
+      {column: "stockData.symbol", width: 10},
+      {column: "stockData.name", width: 30},
+      {column: "volumeChangePct", width: 10},
+      {column: "volumeChange", width: 10},
+      {column: "stockData.date", width: 10},
+      {column: "stockData", width: 50}
+  ]
+
+
+  loadingIndicator: boolean = true;
+  totalRows: any = [];
+  @ViewChild(DatatableComponent) table: DatatableComponent;
 
   private lastInserted: number[] = [];
 
@@ -100,7 +130,12 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.toastr.overlayContainer = this.toastContainer;
-
+    this.columns.forEach((col: any) => {
+        const colWidth = this.columnWidths.find(colWidth => colWidth.column === col.prop);
+        if (colWidth) {
+            col.width = colWidth.width;
+        }
+    });
     // this.notificationsService.getNotifications().subscribe(data => {
     //     this.stocks = data;
     //   }
@@ -157,8 +192,13 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
           if(this.stocks.length > 0) {
             for (var i = 0; i < this.stocks.length; i++) {
-              this.title = "Volume Spike Detected:"
-              this.message = "Symbol: " + this.stocks[i].symbol + " Volume: " + this.stocks[i].volume + " at " + new Date(this.stocks[i].date);
+                this.title = "Volume spike: " + this.stocks[i].volumeChangePct + "% (" + this.stocks[i].volumeChange + ") - \n " + moment(new Date(this.stocks[i].stockData.date), "MMM Do, YYYY, h:mm ZZ").fromNow() + ")";
+                this.message = this.stocks[i].stockData.symbol + " - " + this.stocks[i].stockData.name;
+                if(this.stocks[i].volumeChange > 0) {
+                  this.type = types[0]
+              } else {
+                  this.type = types[1]
+              }
               this.openToast();
             }
             this.refreshHistory();
@@ -181,8 +221,8 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
             if(this.stocks.length > 0) {
               for (var i = 0; i < this.stocks.length; i++) {
-                this.title = "Volume Spike Detected:"
-                this.message = "Symbol: " + this.stocks[i].symbol + " Volume: " + this.stocks[i].volume + " at " + new Date(this.stocks[i].date);
+                  this.title = "Volume spike: " + this.stocks[i].volumeChangePct + "% (" + this.stocks[i].volumeChange + ") - \n " + moment(new Date(this.stocks[i].stockData.date), "MMM Do, YYYY, h:mm ZZ").fromNow() + ")";
+                  this.message = this.stocks[i].stockData.symbol + " - " + this.stocks[i].stockData.name;
                 this.openToast();
               }
               this.refreshHistory();
@@ -270,4 +310,16 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     this.renderer.addClass(document.body, add);
     this.renderer.removeClass(document.body, remove);
   }
+
+  filterData(event) {
+      console.log(event);
+      let columnName = event.currentTarget.id;
+      const val = event.target.value.toLowerCase();
+      const filteredData = this.totalRows.filter(function (d) {
+          return d[columnName].toLowerCase().indexOf(val) !== -1 || !val;
+      });
+      this.stocks = filteredData;
+      this.table.offset = 0;
+  }
+
 }

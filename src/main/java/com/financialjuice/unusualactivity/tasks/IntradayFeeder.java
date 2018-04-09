@@ -2,9 +2,9 @@ package com.financialjuice.unusualactivity.tasks;
 
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.model.SymbolData;
-import com.financialjuice.unusualactivity.repository.IntradayRestClient;
 import com.financialjuice.unusualactivity.repository.StockDataRepository;
 import com.financialjuice.unusualactivity.repository.SymbolRepository;
+import com.financialjuice.unusualactivity.rest.IntradayRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,7 +52,6 @@ public class IntradayFeeder implements Runnable {
     public void executeAsynchronously() {
         IntradayFeeder intradayFeeder = applicationContext.getBean(IntradayFeeder.class);
         taskExecutor.execute(intradayFeeder);
-
     }
 
     /**
@@ -61,15 +61,19 @@ public class IntradayFeeder implements Runnable {
 
         log.info("Started IntradayFeeder");
 
-        List<SymbolData> ls = symbolRepository.findSymbolsByExchange("NYSE");
+        List<SymbolData> ls = symbolRepository.findAll();
+        log.debug("Importing Intraday Stockdata for {} Symbols", ls.size());
         ls.forEach(s -> {
-
-                        importFeed(s.getSymbol());
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            log.info("Error reducing frequency for HTTP request for symbol:[{}] Error:[{}]", s.getSymbol(), e.getMessage());
+//                    Thread thread = new Thread(new Runnable() {
+//                        public void run()
+//                        {
+//                            importFeed(s.getSymbol());
 //                        }
+//                    });
+//                    thread.start();
+
+                    importFeed(s.getSymbol());
+
                 }
         );
     }
@@ -80,14 +84,19 @@ public class IntradayFeeder implements Runnable {
      * @param symbol
      */
     private void importFeed(String symbol) {
-        log.info("Importing StockData SymbolData [{}]", symbol);
+        log.debug("Importing StockData SymbolData [{}]", symbol);
 
         List<StockData> intraday = intradayRestClient.getIntradayData(symbol);
         if (intraday != null && !intraday.isEmpty()) {
 
             intraday.forEach(s -> {
-                LocalDateTime lastUpdate = stockDataRepository.getLastUpdated(symbol).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();;
-                if (lastUpdate == null || lastUpdate.compareTo(s.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) < 0) {
+                Date dateToConvert = stockDataRepository.getLastUpdated(s.getSymbol());
+                LocalDateTime lastUpdate = null;
+                if(dateToConvert != null) {
+                    lastUpdate = dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                }
+
+                if(lastUpdate == null || lastUpdate.isBefore(LocalDateTime.now())) {
 
                     if (stockDataRepository.updateStock(s.getSymbol(), s.getDate(),
                             s.getOpen(), s.getClose(),
@@ -97,7 +106,7 @@ public class IntradayFeeder implements Runnable {
                     }
 
                 } else {
-                    log.info("Skipping StockData import feed. Already up-to-date for StockData SymbolData [{}] Last update date: [{}]", s.getSymbol(), lastUpdate);
+                    log.debug("Skipping StockData import feed. Already up-to-date for StockData SymbolData [{}] Last update date: [{}]", s.getSymbol(), lastUpdate);
                 }
             });
         }

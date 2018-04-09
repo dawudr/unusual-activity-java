@@ -3,7 +3,7 @@ package com.financialjuice.unusualactivity.tasks;
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.model.SymbolData;
 import com.financialjuice.unusualactivity.repository.StockDataRepository;
-import com.financialjuice.unusualactivity.repository.StockDataRestClient;
+import com.financialjuice.unusualactivity.rest.StockDataRestClient;
 import com.financialjuice.unusualactivity.repository.SymbolRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +46,9 @@ public class StockDataFeeder implements Runnable {
 
     //TODO:
     /**
-     * Parameter 0 of constructor in com.financialjuice.unusualactivity.tasks.StockDataFeeder required a bean of type 'com.financialjuice.unusualactivity.repository.StockDataRestClient$TimeSeries' that could not be found.
+     * Parameter 0 of constructor in com.financialjuice.unusualactivity.tasks.StockDataFeeder required a bean of type 'com.financialjuice.unusualactivity.rest.StockDataRestClient$TimeSeries' that could not be found.
      Action:
-     Consider defining a bean of type 'com.financialjuice.unusualactivity.repository.StockDataRestClient$TimeSeries' in your configuration.
+     Consider defining a bean of type 'com.financialjuice.unusualactivity.rest.StockDataRestClient$TimeSeries' in your configuration.
      */
 //    public StockDataFeeder(StockDataRestClient.TimeSeries timeSeries) {
 //        this.timeSeries = timeSeries;
@@ -75,7 +75,8 @@ public class StockDataFeeder implements Runnable {
 
         log.info("Started StockDataFeeder with timeseries[{}]", this.timeSeries);
 
-        List<SymbolData> ls = symbolRepository.findSymbolsByExchange("NYSE");
+        List<SymbolData> ls = symbolRepository.findAll();
+        log.info("Importing Daily Stockdata for {} Symbols", ls.size());
         ls.forEach(s -> {
 
             Date dateToConvert = stockDataRepository.getLastUpdated(s.getSymbol());
@@ -91,17 +92,19 @@ public class StockDataFeeder implements Runnable {
                     log.info("Error reducing frequency for HTTP request for symbol:[{}] Error:[{}]", s.getSymbol(), e.getMessage());
                 }
             } else {
-                LocalDate lastUpdate = dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate lastUpdate = null;
                 LocalDate today = LocalDate.now();
-
-                if(lastUpdate.isBefore(today)) {
-                    log.info("Importing feed. LastUpdated: {} Current date: {}", lastUpdate, today);
+                if(dateToConvert != null) {
+                    lastUpdate = dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                }
+                if(lastUpdate == null || lastUpdate.isBefore(today)) {
+                    log.debug("Importing feed. LastUpdated: {} Current date: {}", lastUpdate, today);
                     importFeed(s.getSymbol(), this.timeSeries);
 
                     try {
                         Thread.sleep(1050);
                     } catch (InterruptedException e) {
-                        log.info("Error reducing frequency for HTTP request for symbol:[{}] Error:[{}]", s.getSymbol(), e.getMessage());
+                        log.error("Error reducing frequency for HTTP request for symbol:[{}] Error:[{}]", s.getSymbol(), e.getMessage());
                     }
                 } else {
                     log.info("Skipping StockData import feed. Already up-to-date for StockData SymbolData [{}] Last update date: [{}]", s.getSymbol(), lastUpdate);

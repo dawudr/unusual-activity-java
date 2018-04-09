@@ -53,7 +53,7 @@ public class StatisticsService {
         Map<String, Object> map = new HashMap();
         map.put("symbol", symbol);
         map.put("mean", stats.getMean());
-        map.put("n", stats.getN());
+        map.put("sample size", stats.getN());
         map.put("min", stats.getMin());
         map.put("max", stats.getMax());
         map.put("std dev", stats.getStandardDeviation());

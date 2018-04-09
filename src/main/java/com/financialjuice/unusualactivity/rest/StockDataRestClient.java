@@ -1,4 +1,4 @@
-package com.financialjuice.unusualactivity.repository;
+package com.financialjuice.unusualactivity.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -98,7 +98,7 @@ public class StockDataRestClient {
     @Retryable(maxAttempts = 5, value = {RuntimeException.class, HttpServerErrorException.class} , backoff = @Backoff(delay = 10000, multiplier = 2))
     public List<StockData> getStockData(String symbol, TimeSeries function) {
         URI url = getRequestURL(symbol, function);
-        log.debug("Sending HTTP GET Request to URI [{}]", url.toString());
+        log.info("Sending HTTP GET Request to URI [{}]", url.toString());
 
         List<StockData> data = new ArrayList<>();
         RestTemplate restTemplate = new RestTemplate();

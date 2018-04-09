@@ -1,4 +1,4 @@
-package com.financialjuice.unusualactivity.repository;
+package com.financialjuice.unusualactivity.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

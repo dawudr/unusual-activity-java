@@ -3,11 +3,11 @@ package com.financialjuice.unusualactivity.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Entity
+@Entity(name = "SymbolData")
+@Table(name = "symboldata")
 public class SymbolData extends AuditData {
 
     @Id
@@ -26,13 +26,19 @@ public class SymbolData extends AuditData {
     private String marketcap; // £42.19 in £m
     private String fcacategory; // Premium Equity Commercial Companies
 
-
     public SymbolData() {
     }
 
     public SymbolData(String symbol, String name) {
         this.symbol = symbol;
         this.name = name;
+    }
+
+    public SymbolData(String symbol, String name, String startdate, String datatype) {
+        this.symbol = symbol;
+        this.name = name;
+        this.startdate = startdate;
+        this.datatype = datatype;
     }
 
     public SymbolData(String symbol, String name, String instrumentname, String exchange, String market, String datatype, String industry, String sector, String startdate, String country, String currency, String marketcap, String fcacategory) {

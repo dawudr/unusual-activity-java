@@ -1,12 +1,14 @@
 <meta http-equiv="refresh" content="300;URL='/'" />
 <br/>
 <div class="container">
+<!--
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="#">Home</a></li>
     <li class="breadcrumb-item active">Alerts</li>
   </ol>
+-->
 
-<div class="jumbotron">
+<!--<div class="jumbotron">
   <h1 class="display-3">Notifications</h1>
   <p class="lead">Live Alerts of Unusual Activity in Volumes Traded </p>
   <hr class="my-4">
@@ -14,15 +16,17 @@
   <p class="lead">
     <button (click)="doAction()" type="button" class="btn btn-primary btn-lg">
       Scan markets now >>
-    </button>
+    </button>-->
 <!--    <button (click)="clearLastToast()" type="button" class="btn btn-primary btn-lg">
       Clear Last Alert >>
     </button>-->
 <!--    <button (click)="clearToasts()" type="button" class="btn btn-primary btn-lg">
       Clear Alerts >>
     </button>-->
+<!--
   </p>
 </div>
+-->
 
 
 <!--
@@ -56,26 +60,147 @@
 
 
 <div class="container">
+<!--
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th scope="col">Symbol</th>
+      <th scope="col">Date</th>
+      <th scope="col">Volume</th>
+      <th scope="col">Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let alert of stock">
+      <td>{{alert.stockData.symbol}}</td>
+      <td>{{alert.stockData.date | date:'medium'}}</td>
+      <td>Volume peaked by {{ alert.volumeChangePct }} at {{alert.stockData.volume}}</td>
+      <td>Price was {{alert.stock.close}}</td>
+    </tr>
+    </tbody>
+  </table>
+-->
+
+<!--  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th scope="col">Symbol</th>
+      <th scope="col">Date</th>
+      <th scope="col">Volume</th>
+      <th scope="col">Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let alert of stocksh">
+      <td>{{alert.stockData.symbol}}</td>
+      <td>{{alert.stockData.date | date:'medium'}}</td>
+      <td>Volume peaked by {{ alert.volumeChangePct }} at {{alert.stockData.volume}}</td>
+      <td>Price was {{alert.stock.close}}</td>
+    </tr>
+    </tbody>
+  </table>-->
+<!--
 <div class="list-group">
 
-
-  <a *ngFor="let stock of stocks" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+  <a *ngFor="let alert of stock" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
     <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{stock.symbol}}</h5>
-      <small class="badge badge-light badge-pill">{{stock.date | date:'medium'}}</small>
+      <h5 class="mb-1">{{alert.stockData.symbol}} - {{alert.stockData.name}}</h5>
+      <small class="badge badge-light badge-pill">{{alert.stockData.date | date:'medium'}}</small>
     </div>
-    <p class="mb-1">Volume peaked at {{stock.volume}}</p>
-    <small>Price was {{stock.close}}</small>
+    <p class="mb-1">Volume peaked by {{ alert.volumeChangePct }}% at {{alert.stockData.volume}}</p>
+    <small>Open {{alert.stockData.open}} | Close  {{alert.stockData.close}}| High {{alert.stockData.high}}| Low {{alert.stockData.low}}</small>
   </a>
-  <a *ngFor="let stock of stocksh" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+
+
+
+
+  <a *ngFor="let alert of stocksh" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
     <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{stock.symbol}}</h5>
-      <small class="badge badge-light badge-pill">{{stock.date | date:'medium'}}</small>
+      <h5 class="mb-1">{{alert.stockData.symbol}} - {{alert.stockData.name}}</h5>
+      <small class="badge badge-light badge-pill">{{alert.stockData.date | date:'medium'}}</small>
     </div>
-    <p class="mb-1">Volume peaked at {{stock.volume}}</p>
-    <small>Price was {{stock.close}}</small>
+    <p class="mb-1">Volume peaked by {{ alert.volumeChangePct }}% at {{alert.stockData.volume}}</p>
+    <small>Open {{alert.stockData.open}}  |  Close  {{alert.stockData.close}}  |  High {{alert.stockData.high}}  |  Low {{alert.stockData.low}}</small>
   </a>
 </div>
+  -->
+
+  <ngx-datatable class="bootstrap"
+                 [rows]="stocksh"
+                 [loadingIndicator]="loadingIndicator"
+                 [columns]="columns"
+                 [columnMode]="'force'"
+                 [headerHeight]="20"
+                 [footerHeight]="30"
+                 [limit]="100"
+                 [rowHeight]="'auto'">
+
+
+    <ngx-datatable-column name="" prop="volumeChange" [width]="10">
+      <ng-template let-value="value" ngx-datatable-cell-template class="bg-success">
+        <div *ngIf="value > 0; then thenTemplateName; else elseTemplateName"></div>
+
+        <ng-template #thenTemplateName>
+          <span class="badge badge-success"> <i class="fa fa-caret-up fa-3x" aria-hidden="true"> </i> </span>
+        </ng-template>
+
+        <ng-template #elseTemplateName>
+          <span class="badge badge-danger"> <i class="fa fa-caret-down fa-3x" aria-hidden="true"> </i> </span>
+        </ng-template>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Symbol" prop="stockData.symbol" width="5">
+      <ng-template let-value="value" ngx-datatable-cell-template>
+        <strong>{{value}}</strong>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Name" prop="stockData.name" width="30">
+      <!--      <ng-template let-column="value" ngx-datatable-header-template>
+              <label class="datatable-header-cell-label">Name</label><br/>
+              <input
+                      type='text'
+                      id="stockData.name"
+                      placeholder='Filter..'
+                      (keyup)='filterData($event)'/>
+            </ng-template>-->
+      <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+        {{value}}
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Volume %" prop="volumeChangePct" width="10">
+      <ng-template let-value="value" ngx-datatable-cell-template>
+        <strong>{{value}}%  </strong>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Volume Change (Units)" prop="volumeChange" width="10">
+      <ng-template let-value="value" ngx-datatable-cell-template>
+        <strong>{{value}}</strong>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Date" prop="stockData.date" width="15">
+      <ng-template let-row="row" let-value="value" class="table-danger" ngx-datatable-cell-template>
+        {{value | date:'yyyy-MM-dd HH:mm:ss ZZ'}}
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column name="Price" prop="stockData" width="50">
+      <ng-template let-value="value" ngx-datatable-cell-template>
+        Open {{value.open}}  |  Close  {{value.close}}  |  High {{value.high}}  |  Low {{value.low}}
+      </ng-template>
+    </ngx-datatable-column>
+
+
+
+
+  </ngx-datatable>
+
+
+
 
 </div>
 

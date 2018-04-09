@@ -1,0 +1,1 @@
+export const API_HOST: string = 'http://moon-dragon.westeurope.cloudapp.azure.com:8080';

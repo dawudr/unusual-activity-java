@@ -8,6 +8,7 @@ export class Stock {
   high: number;
   low: number;
   volume: number;
+  name: string;
 
   constructor(id: number, symbol: string, date: Date, open: number, close: number, high: number, low: number, volume: number){
     this.id = id;
@@ -19,5 +20,4 @@ export class Stock {
     this.low = low;
     this.volume = volume;
   }
-
 }

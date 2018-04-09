@@ -4,16 +4,14 @@ import { Http, Response } from "@angular/http";
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch';
 import { Observable } from 'rxjs';
+import {API_HOST} from "../../constants";
 
 
 @Injectable()
 export class StockService {
 
-  //private apiUrl = 'http://localhost:8080/api/stock';
-  //private apiUrl2 = 'http://localhost:8080/api/intraday';
-
-  private apiUrl = 'http://moon-dragon.westeurope.cloudapp.azure.com:8080/api/stock';
-  private apiUrl2 = 'http://moon-dragon.westeurope.cloudapp.azure.com:8080/api/intraday';
+  private apiUrl = API_HOST + '/api/stock';
+  private apiUrl2 = API_HOST + '/api/intraday';
 
 
   constructor(private http: Http) {

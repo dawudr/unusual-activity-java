@@ -1,5 +1,6 @@
 package com.financialjuice.unusualactivity.repository;
 
+import com.financialjuice.unusualactivity.dto.StockDataDTO;
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.model.SymbolData;
 import org.junit.After;
@@ -24,6 +25,10 @@ public class StockDataRepositoryTest {
 
     @Autowired
     StockDataRepository stockDataRepository;
+
+    @Autowired
+    StockDataDTORepository stockDataDTORepository;
+
     StockData expected , expected2;
 
     @Autowired
@@ -246,7 +251,7 @@ public class StockDataRepositoryTest {
             stockDataRepository.save(expected);
         }
 
-        List<StockData> l = stockDataRepository.findAllByDateAfterOrderByDate(java.sql.Date.valueOf(today.minusDays(1)));
+        List<StockDataDTO> l = stockDataDTORepository.findHistoricStockData(java.sql.Date.valueOf(today.minusDays(1)));
         l.forEach(System.out::println);
 
         assertEquals(10, l.size());
@@ -274,7 +279,7 @@ public class StockDataRepositoryTest {
             stockDataRepository.save(expected);
         }
 
-        List<StockData> l = stockDataRepository.findAllByDateOrderBySymbol(java.sql.Date.valueOf(today.minusDays(1)));
+        List<StockDataDTO> l = stockDataDTORepository.findRealtimeStockData(java.sql.Date.valueOf(today.minusDays(1)));
         l.forEach(System.out::println);
 
         assertEquals(10, l.size());

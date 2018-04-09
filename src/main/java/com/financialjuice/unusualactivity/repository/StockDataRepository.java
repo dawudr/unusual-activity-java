@@ -48,15 +48,18 @@ public interface StockDataRepository extends JpaRepository<StockData, Long> {
                     @Param("high") double high, @Param("low") double low,
                     @Param("volume") long volume);
 
+    // StockDataFeeder - Last updated for Symbol Daily feeds
     @Query("SELECT MAX(s.date) " +
             "FROM StockData s " +
             "WHERE s.symbol = :symbol")
     public Date getLastUpdated(@Param("symbol") String symbol);
 
+    // AlertsController - Last updated for Intraday feeds - fast to do one call.
     @Query("SELECT MAX(s.date) " +
             "FROM StockData s ")
     public Date getLastUpdatedAll();
 
+    // StockDataController - For All Quotes By Symbol
     public List<StockData> findAllBySymbol(String symbol);
 
     public List<StockData> findAllBySymbolAndDateAfter(String symbol, Date date);
@@ -65,10 +68,16 @@ public interface StockDataRepository extends JpaRepository<StockData, Long> {
     @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.symbol = :symbol AND sd.date BETWEEN :startDate AND :endDate")
     public List<StockData> findAllBySymbolAndDateBetweenAndDate(@Param("symbol") String symbol, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
+    // AlertsController - For Calculation sample for stats historical period data points.
+//    @Query("SELECT sd, sy.name FROM StockData sd JOIN sd.symbolData sy WHERE sd.date > :date ORDER BY sd.symbol")
     public List<StockData> findAllByDateAfterOrderBySymbol(Date date);
 
+    // AlertsController - For Latest realtime intraday data point per Symbol.
+//    @Query("SELECT sd, sy.name FROM StockData sd JOIN SymbolData sy WHERE sd.date = :date ORDER BY sd.symbol")
     public List<StockData> findAllByDateOrderBySymbol(Date date);
 
+    // AlertsController - For Historic daily data points per Symbol
+//    @Query("SELECT sd, sy.name FROM StockData sd JOIN SymbolData sy WHERE sd.date > :date ORDER BY sd.date")
     public List<StockData> findAllByDateAfterOrderByDate(Date date);
 
     // TODO: Fix me
