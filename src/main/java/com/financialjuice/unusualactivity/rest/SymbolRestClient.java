@@ -89,6 +89,8 @@ public class SymbolRestClient {
                             String dateStr = symbolNode.get("date").asText();
                             String type = symbolNode.get("type").asText();
                             try {
+                                // TODO: Remove to allow other types of Stock in future
+                                if ((type.toUpperCase()).equals("CS"))
                                 data.add(new SymbolData(symbol, name, dateStr, StockType.valueOf(type.toUpperCase()).getStockType()));
                             } catch (IllegalArgumentException ex) {
                                 log.error("Bad data error for Symbol {} , Exception: {} ", symbol , ex.getMessage());

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import java.sql.Time;
 import java.util.Date;
 import java.util.Objects;
 
@@ -23,6 +24,8 @@ public class StockData extends AuditData implements Comparable<StockData> {
     private double high;
     private double low;
     private long volume;
+    private Date date_part;
+    private Time time_part;
 
 //    @ManyToOne(optional=true)
 //    @JoinColumn(name = "symbol", insertable=false, updatable=false)
@@ -109,6 +112,22 @@ public class StockData extends AuditData implements Comparable<StockData> {
 
     public void setVolume(long volume) {
         this.volume = volume;
+    }
+
+    public Date getDate_part() {
+        return date_part;
+    }
+
+    public void setDate_part(Date date_part) {
+        this.date_part = date_part;
+    }
+
+    public Time getTime_part() {
+        return time_part;
+    }
+
+    public void setTime_part(Time time_part) {
+        this.time_part = time_part;
     }
 
     @Override

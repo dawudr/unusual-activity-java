@@ -1,17 +1,24 @@
 package com.financialjuice.unusualactivity.repository;
 
+import com.financialjuice.unusualactivity.dto.StatsDTO;
 import com.financialjuice.unusualactivity.dto.StockDataDTO;
+import com.financialjuice.unusualactivity.model.StockData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,6 +67,53 @@ public class StockDataDTORepository {
     };
 
 
+    @Transactional(readOnly = true)
+    public List<StatsDTO> findRealtimeStats(int minutesAgo, String symbol, int ndvol, int ndprange) {
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime localDateTime_minutesAgo = localDateTime.minusMinutes(minutesAgo);
+        String timenow = localDateTime.format(formatter);
+        String timeMinutesAgo = localDateTime_minutesAgo.format(formatter);
+
+        log.debug("Fetching Stats for {} minutes ago at time[{}] to time now[{}] for date[{}] for Symbol:[{}] and NormalDistVol>[{}] and NormalDist_PRange>[{}]", minutesAgo, timeMinutesAgo, timenow, localDateTime, symbol, ndvol, ndprange);
+
+
+        String sql = null;
+        if(symbol != null && !symbol.isEmpty()) {
+            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timeMinutesAgo + "' AND '" + timenow + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+        } else {
+            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timeMinutesAgo + "' AND '" + timenow + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+        }
+
+        log.debug("Alert SQL [{}]", sql);
+
+        List <StatsDTO> stats = new ArrayList();
+        jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.query(sql, new ResultSetExtractor() {
+            public List extractData(ResultSet rs) throws SQLException {
+
+                while (rs.next()) {
+                    StatsDTO dto = new StatsDTO(
+                            rs.getDate("DateCreated"),
+                            rs.getString("Symbol"),
+                            rs.getDouble("NormalDist"),
+                            rs.getTime("Time_Part"),
+                            rs.getDouble("NormalDist_PRange"),
+                            rs.getDouble("PRange"),
+                            rs.getLong("LatestVolume"),
+                            rs.getString("name")
+                    );
+                    stats.add(dto);
+                }
+                log.debug("Found [{}] stats for minutes ago: {} for Symbol:[{}]", stats.size(), timeMinutesAgo, symbol);
+                return stats;
+            }
+        });
+        return stats;
+    };
+
 
 
     // AlertsController - For Historic daily data points per Symbol
@@ -93,5 +147,47 @@ public class StockDataDTORepository {
         });
         log.debug("Found [{}] stocks on date {}", stocks.size(), date);
         return stocks;
+    }
+
+
+
+
+
+    public int[] batchUpdate(final List<StockData> stocks) {
+        log.debug("BatchUpdate [{}] stockdata feeds", stocks.size());
+        long startTime = System.currentTimeMillis();
+
+// TODO: Mysql Insert Make compatible
+//        String sql = "INSERT INTO stockdata " +
+//                "(date, symbol, open, close, high, low, volume ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+//        String sql = "INSERT INTO stockdata " +
+//                "([date], [symbol], [open], [close], [high], [low], [volume], [date_part], [time_part]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+        String sql = "{call AddStockData(?, ?, ?, ?, ?, ?, ?)}";
+
+
+        int[] updateCounts = jdbcTemplate.batchUpdate(sql,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        log.debug("Batch Insert Stockdata: " + stocks.get(i).toString());
+                        ps.setTimestamp(2, new Timestamp(stocks.get(i).getDate().getTime()));
+                        ps.setString(1, stocks.get(i).getSymbol());
+                        ps.setDouble(3, stocks.get(i).getOpen());
+                        ps.setDouble(4, stocks.get(i).getClose());
+                        ps.setDouble(6, stocks.get(i).getHigh());
+                        ps.setDouble(5, stocks.get(i).getLow());
+                        ps.setLong(7, stocks.get(i).getVolume());
+//                        ps.setDate(8, new java.sql.Date(stocks.get(i).getDate_part().getTime()));
+//                        ps.setTime(9, stocks.get(i).getTime_part());
+                    }
+
+                    public int getBatchSize() {
+                        return stocks.size();
+                    }
+                } );
+
+        log.debug("BatchUpdate Success for [{}] stocks. Elapsed time: {}ms", updateCounts.length, (System.currentTimeMillis() - startTime));
+        return updateCounts;
     }
 }

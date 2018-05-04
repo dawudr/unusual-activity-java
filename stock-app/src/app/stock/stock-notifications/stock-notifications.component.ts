@@ -161,7 +161,7 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     }
     this.interval = setInterval(() => {
       this.refreshData();
-    }, 30000);
+    }, 60000);
 
 
     this.notificationsService.data$.takeUntil(this.unsubscribe)

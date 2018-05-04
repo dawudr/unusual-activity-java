@@ -99,10 +99,11 @@
     </tr>
     </tbody>
   </table>-->
-<!--
+
+
 <div class="list-group">
 
-  <a *ngFor="let alert of stock" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+  <a *ngFor="let alert of stocks" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1">{{alert.stockData.symbol}} - {{alert.stockData.name}}</h5>
       <small class="badge badge-light badge-pill">{{alert.stockData.date | date:'medium'}}</small>
@@ -114,16 +115,15 @@
 
 
 
-  <a *ngFor="let alert of stocksh" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+<!--  <a *ngFor="let alert of stocksh" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1">{{alert.stockData.symbol}} - {{alert.stockData.name}}</h5>
       <small class="badge badge-light badge-pill">{{alert.stockData.date | date:'medium'}}</small>
     </div>
     <p class="mb-1">Volume peaked by {{ alert.volumeChangePct }}% at {{alert.stockData.volume}}</p>
     <small>Open {{alert.stockData.open}}  |  Close  {{alert.stockData.close}}  |  High {{alert.stockData.high}}  |  Low {{alert.stockData.low}}</small>
-  </a>
+  </a>-->
 </div>
-  -->
 
   <ngx-datatable class="bootstrap"
                  [rows]="stocksh"

@@ -2,7 +2,8 @@
 spring.datasource.url=${SPRING_DATASOURCE_URL}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
-spring.datasource.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+# spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
 
 
 spring.datasource.max-wait=20000
@@ -12,17 +13,17 @@ spring.datasource.min-idle=15
 
 ## Hibernate Properties
 # The SQL dialect makes Hibernate generate better SQL for the chosen database
-spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.SQLServerDialect
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
+#spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.SQLServer2012Dialect
 # Hibernate ddl auto (create, create-drop, validate, update)
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.id.new_generator_mappings = false
 spring.jpa.properties.hibernate.format_sql = true
-spring.jpa.properties.hibernate.globally_quoted_identifiers=true
 
 # Disable batch auto-start
 spring.batch.job.enabled=false
 
-logging.level.org.hibernate.SQL=INFO
+logging.level.org.hibernate.SQL=ERROR
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=ERROR
 logging.level.com.financialjuice.unusualactivity=DEBUG
 logging.level.org.springframework.web=ERROR
@@ -42,10 +43,10 @@ spring.data.rest.defaultMediaType=application/json
 #prints default password---
 #logging.level.org.springframework.boot.autoconfigure.security= INFO
 
-database.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-database.url=jdbc:sqlserver://fjdb.centralus.cloudapp.azure.com:1433;database=UA
-database.username=devuser
-database.password=devuser
+database.driver=com.mysql.jdbc.Driver
+database.url=jdbc:mysql://localhost:3306/unusualactivity
+database.username=root
+database.password=password
 
 file.import.companies.lse=companies-list-on-lse-extract.csv
 file.import.companies.nyse=companylist_nyse.csv
