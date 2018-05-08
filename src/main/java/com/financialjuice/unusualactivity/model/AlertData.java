@@ -2,6 +2,7 @@ package com.financialjuice.unusualactivity.model;
 
 import com.financialjuice.unusualactivity.dto.StockDataDTO;
 
+@Deprecated
 public class AlertData {
 
     private long volumeChange;

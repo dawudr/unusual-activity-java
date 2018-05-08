@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import {Http, Response} from "@angular/http";
 import { Observable, BehaviorSubject } from 'rxjs';
-import {Stock} from "./stock";
 import {API_HOST} from "../../constants";
-import {Alert} from "./alert";
+import {Stats} from "./stats";
 
 @Injectable()
 export class NotificationsService {
 
-  private apiUrl = API_HOST + '/api/alerts';
+  private apiUrl = API_HOST + '/api/alerts/data';
 
-  private dataSubject: BehaviorSubject<Alert[]> = new BehaviorSubject([]);
+  private dataSubject: BehaviorSubject<Stats[]> = new BehaviorSubject([]);
 
-  data$: Observable<Alert[]> = this.dataSubject.asObservable();
+  data$: Observable<Stats[]> = this.dataSubject.asObservable();
+  private requesturl: string;
 
   updateData(): Observable<any>  {
     return this.getData().do((data) => {
@@ -21,8 +21,8 @@ export class NotificationsService {
   }
 
     // My data is an array of model objects
-    getData(): Observable<Alert[]>{
-    return this.http.get(this.apiUrl + '/data')
+    getData(): Observable<Stats[]>{
+    return this.http.get(this.apiUrl)
       .map((response: Response) => {
         let data = response.json() && response.json().your_data_objects;
         if(data){
@@ -35,14 +35,19 @@ export class NotificationsService {
   constructor(private http: Http) {
   }
 
-  getNotifications(): Observable<Alert[]>  {
-    return this.http.get(this.apiUrl + '/data')
-      .map((res:Response) => res.json())
-      .catch(this.handleError);
-  }
+  getNotifications(symbol :string, realtime: boolean): Observable<Stats[]>  {
+    this.requesturl = "";
+    if(symbol) {
+        this.requesturl= this.apiUrl + "/" + symbol;
+    } else {
+        this.requesturl= this.apiUrl;
+    }
 
-  getHistory(): Observable<Alert[]>  {
-    return this.http.get(this.apiUrl + '/history')
+    if(!realtime) {
+      this.requesturl = this.requesturl.concat('?realtime=false');
+    }
+
+    return this.http.get(this.requesturl)
       .map((res:Response) => res.json())
       .catch(this.handleError);
   }

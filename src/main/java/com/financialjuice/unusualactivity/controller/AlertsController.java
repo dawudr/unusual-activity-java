@@ -39,20 +39,24 @@ public class AlertsController {
 
     @RequestMapping(value = "/data", method = RequestMethod.GET)
     public List<StatsDTO> getData(@RequestParam(value = "time", defaultValue = "2", required = false) int time,
-                                  @RequestParam(value = "ndvol", defaultValue = "0", required = false) int ndvol,
-                                  @RequestParam(value = "ndprange", defaultValue = "0", required = false) int ndprange) {
+                                  @RequestParam(value = "ndvol", defaultValue = "0", required = false) double ndvol,
+                                  @RequestParam(value = "ndprange", defaultValue = "0", required = false) double ndprange,
+                                  @RequestParam(value = "realtime", defaultValue = "true", required = false) String realtime) {
 
+        log.debug("Parameters:- time: {}, ndvol: {}, ndprange: {}, realtime: {}", time, ndvol, ndprange, realtime);
         // TODO: Fetch LATEST - this should be REAL TIME!!!! Change it once we go live!
         Date lastUpdateDate = stockDataRepository.getLastUpdatedAll();
-        List<StatsDTO> statsDTOS = stockDataDTORepository.findRealtimeStats(time, null, ndvol, ndprange);
+        List<StatsDTO> statsDTOS = stockDataDTORepository.findRealtimeStats(time, null, ndvol/100.0, ndprange/100.0, Boolean.parseBoolean(realtime));
         return statsDTOS;
     }
 
     @RequestMapping(value = "/data/{symbol}", method = RequestMethod.GET)
     public List<StatsDTO> getDataBySymbol(@PathVariable("symbol") String symbol, @RequestParam(value = "time", defaultValue = "2", required = false) int time,
-                                          @RequestParam(value = "ndvol", defaultValue = "0", required = false) int ndvol,
-                                          @RequestParam(value = "ndprange", defaultValue = "0", required = false) int ndprange) {
-        List<StatsDTO> statsDTOS = stockDataDTORepository.findRealtimeStats(time, symbol, ndvol, ndprange);
+                                          @RequestParam(value = "ndvol", defaultValue = "0", required = false) double ndvol,
+                                          @RequestParam(value = "ndprange", defaultValue = "0", required = false) double ndprange,
+                                          @RequestParam(value = "realtime", defaultValue = "true", required = false) String realtime) {
+        log.debug("Symbol: {} Parameters:- time: {}, ndvol: {}, ndprange: {}, realtime: {}", symbol, time, ndvol, ndprange, realtime);
+        List<StatsDTO> statsDTOS = stockDataDTORepository.findRealtimeStats(time, symbol, ndvol/100.0, ndprange/100.0, Boolean.parseBoolean(realtime));
         return statsDTOS;
     }
 

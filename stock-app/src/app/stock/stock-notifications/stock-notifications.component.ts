@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild, Renderer2, VERSION, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import * as moment from 'moment';
 import {ToastContainerDirective, ToastrService} from 'ngx-toastr';
-import { Stock } from "../stock";
+import { Stats } from "../stats";
 
 import {
   GlobalConfig,
@@ -9,13 +9,13 @@ import {
 } from '../../../lib/public_api';
 
 import { cloneDeep, random } from 'lodash-es';
-import {Router} from "@angular/router";
+import {Router, ActivatedRoute, ParamMap } from "@angular/router";
 import {NotificationsService} from "../notifications.service";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import 'rxjs/add/operator/takeUntil';
-import {Alert} from "../alert";
 import {DatatableComponent} from "@swimlane/ngx-datatable";
+import { switchMap } from 'rxjs/operators';
 
 // See https://stackoverflow.com/questions/44947551/angular2-4-refresh-data-realtime
 // https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription/41177163#41177163
@@ -63,7 +63,7 @@ const types = ['success', 'error', 'info', 'warning'];
 export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
-  private unsubscribe: Subject<Stock> = new Subject();
+  private unsubscribe: Subject<Stats> = new Subject();
 
   data: any;
   interval: any;
@@ -71,8 +71,13 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   momentAgo: string = moment().startOf('minute').fromNow();
   timeAgo: string = moment().format('MMMM Do YYYY, h:mm');
-  stocks: Alert[];
-  stocksh: Alert[];
+  stocks: Stats[];
+  stocksh: Stats[];
+  private symbol: string;
+  private ndvol: number;
+  private ndprange: number;
+  private time: number = 1;
+  private realtime: boolean = true;
 
   // Toastr Params
   options: GlobalConfig;
@@ -87,29 +92,6 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
   progressAnimation = 'decreasing';
   timeOut = 30000;
 
-
-  columns = [
-      { prop: 'volumeChange' },
-      { prop: 'stockData.symbol' },
-      { prop: 'stockData.name' },
-      { prop: 'volumeChangePct' },
-      { prop: 'volumeChange' },
-      { prop: 'stockData.date' },
-      { prop: 'stockData' }
-  ];
-
-
-  columnWidths = [
-      {column: "volumeChange", width: 10},
-      {column: "stockData.symbol", width: 10},
-      {column: "stockData.name", width: 30},
-      {column: "volumeChangePct", width: 10},
-      {column: "volumeChange", width: 10},
-      {column: "stockData.date", width: 10},
-      {column: "stockData", width: 50}
-  ]
-
-
   loadingIndicator: boolean = true;
   totalRows: any = [];
   @ViewChild(DatatableComponent) table: DatatableComponent;
@@ -123,19 +105,22 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
               private notificationsService: NotificationsService,
               private _changeDetectorRef: ChangeDetectorRef,
               public toastr: ToastrService,
-              private renderer: Renderer2) {
+              private renderer: Renderer2,
+              private route: ActivatedRoute) {
     this.options = this.toastr.toastrConfig;
 
   }
 
   ngOnInit() {
     this.toastr.overlayContainer = this.toastContainer;
-    this.columns.forEach((col: any) => {
-        const colWidth = this.columnWidths.find(colWidth => colWidth.column === col.prop);
-        if (colWidth) {
-            col.width = colWidth.width;
-        }
+
+    this.route.params.subscribe(params => {
+      this.symbol=params['symbol'];
+      this.ndvol=params['ndvol'];
+      this.ndprange=params['ndprange'];
+      this.realtime=params['realtime'];
     });
+
     // this.notificationsService.getNotifications().subscribe(data => {
     //     this.stocks = data;
     //   }
@@ -186,27 +171,27 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   refreshData(){
     // this.subscription.add(
-      this.notificationsService.getNotifications()
+      this.notificationsService.getNotifications(this.symbol, this.realtime)
         .subscribe(data => {
           this.stocks = data;
 
           if(this.stocks.length > 0) {
             for (var i = 0; i < this.stocks.length; i++) {
-                this.title = "Volume spike: " + this.stocks[i].volumeChangePct + "% (" + this.stocks[i].volumeChange + ") - \n " + moment(new Date(this.stocks[i].stockData.date), "MMM Do, YYYY, h:mm ZZ").fromNow() + ")";
-                this.message = this.stocks[i].stockData.symbol + " - " + this.stocks[i].stockData.name;
-                if(this.stocks[i].volumeChange > 0) {
+                this.title = "Volume spike of: " + this.stocks[i].latestVolume + " Percentile: " + this.stocks[i].normalDist_Volume + "% - \n " + moment(new Date(this.stocks[i].time_part), "h:mm ZZ").fromNow() + ")";
+                this.message = this.stocks[i].symbol + " - " + this.stocks[i].name + " Price Range: " + this.stocks[i].normalDist_PRange;
+                if(this.stocks[i].latestVolume > 0) {
                   this.type = types[0]
               } else {
                   this.type = types[1]
               }
               this.openToast();
             }
-            this.refreshHistory();
+            //this.refreshHistory();
           }
         })
     // );
 
-    this.notificationsService.getNotifications()
+    this.notificationsService.getNotifications(this.symbol, this.realtime)
       .takeUntil(this.unsubscribe)
       .subscribe();
   }
@@ -214,15 +199,15 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   doAction(){
     this.subscription.add(
-      this.notificationsService.getNotifications()
+      this.notificationsService.getNotifications(this.symbol, this.realtime)
         .subscribe(data => {
           if(data.length > 0){
             this.stocks = data;
 
             if(this.stocks.length > 0) {
               for (var i = 0; i < this.stocks.length; i++) {
-                  this.title = "Volume spike: " + this.stocks[i].volumeChangePct + "% (" + this.stocks[i].volumeChange + ") - \n " + moment(new Date(this.stocks[i].stockData.date), "MMM Do, YYYY, h:mm ZZ").fromNow() + ")";
-                  this.message = this.stocks[i].stockData.symbol + " - " + this.stocks[i].stockData.name;
+                  this.title = "Volume spike of: " + this.stocks[i].latestVolume + " Percentile: " + this.stocks[i].normalDist_Volume + "% - \n " + moment(new Date(this.stocks[i].time_part), "h:mm ZZ").fromNow() + ")";
+                  this.message = this.stocks[i].symbol + " - " + this.stocks[i].name + " Price Range: " + this.stocks[i].normalDist_PRange;
                 this.openToast();
               }
               this.refreshHistory();
@@ -239,7 +224,7 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     //   }
     // );
 
-    this.notificationsService.getHistory().subscribe(data => {
+    this.notificationsService.getNotifications(this.symbol, this.realtime).subscribe(data => {
         this.stocksh = data;
       }
     );

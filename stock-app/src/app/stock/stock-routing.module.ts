@@ -13,6 +13,7 @@ const routes: Routes = [
   {path: 'stock/delete/:id', component: StockListComponent},
   {path: 'stock/chart', component: StockChartComponent},
   {path: 'stock/notify', component: StockNotificationsComponent},
+  {path: 'stock/notify/:symbol', component: StockNotificationsComponent},
   {path: 'features', component: FeaturesComponent},
   {path: '', component: FeaturesComponent}
 ];
