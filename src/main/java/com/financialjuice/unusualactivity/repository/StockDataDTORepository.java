@@ -93,14 +93,14 @@ public class StockDataDTORepository {
         String sql = null;
         if(symbol != null && !symbol.isEmpty()) {
             if(!realtime) {
-                sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             } else {
-                sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             }
         } else if (!realtime) {
-            sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
         } else {
-            sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
         }
 
 

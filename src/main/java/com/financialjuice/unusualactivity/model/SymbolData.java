@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(name = "SymbolData")
-@Table(name = "symboldata")
+@Table(name="symboldata", catalog="UA", schema="DBO")
 public class SymbolData extends AuditData {
 
     @Id

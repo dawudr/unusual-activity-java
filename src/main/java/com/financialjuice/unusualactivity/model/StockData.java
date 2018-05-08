@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(name = "StockData")
-@Table(name = "stockdata")
+@Table(name="stockdata", catalog="UA", schema="DBO")
 public class StockData extends AuditData implements Comparable<StockData> {
 
     @Id
