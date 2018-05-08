@@ -42,7 +42,7 @@ public class StockDataDTORepository {
 
         log.debug("Fetching Stock ON date {}", date);
 //        String sql = "SELECT sd, sy.name FROM StockData sd JOIN SymbolData sy WHERE sd.date = " + date.toString() + " ORDER BY sd.symbol";
-        String sql = "SELECT *, sy.name FROM stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date = '" + date.toString() + "' ORDER BY sd.symbol";
+        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date = '" + date.toString() + "' ORDER BY sd.symbol";
         List <StockDataDTO> stocks = new ArrayList();
 
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -93,14 +93,14 @@ public class StockDataDTORepository {
         String sql = null;
         if(symbol != null && !symbol.isEmpty()) {
             if(!realtime) {
-                sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             } else {
-                sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             }
         } else if (!realtime) {
-            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
         } else {
-            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM dbo.SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
         }
 
 
@@ -139,7 +139,7 @@ public class StockDataDTORepository {
     public List<StockDataDTO> findHistoricStockData(Date date) {
         log.debug("Fetching Stock AFTER date {}", date);
 
-        String sql = "SELECT *, sy.name FROM stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date";
+        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN dbo.symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date";
         List<StockDataDTO> stocks = new ArrayList();
 
         jdbcTemplate = new JdbcTemplate(dataSource);
