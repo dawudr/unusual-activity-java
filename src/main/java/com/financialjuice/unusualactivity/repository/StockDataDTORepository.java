@@ -98,9 +98,9 @@ public class StockDataDTORepository {
                 sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             }
         } else if (!realtime) {
-            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
         } else {
-            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
         }
 
 
@@ -139,7 +139,7 @@ public class StockDataDTORepository {
     public List<StockDataDTO> findHistoricStockData(Date date) {
         log.debug("Fetching Stock AFTER date {}", date);
 
-        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN dbo.symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date";
+        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN dbo.symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
         List<StockDataDTO> stocks = new ArrayList();
 
         jdbcTemplate = new JdbcTemplate(dataSource);

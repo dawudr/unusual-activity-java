@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-/*@import "~bootstrap/dist/css/bootstrap.min.css";*/
+@import "~bootstrap/dist/css/bootstrap.min.css";
 @import "assets/united/bootstrap.css";
 @import "assets/toastr/toastr.css";
 @import "~font-awesome/css/font-awesome.css";
@@ -8,6 +8,7 @@
 @import '~@swimlane/ngx-datatable/release/themes/material.css';
 @import '~@swimlane/ngx-datatable/release/assets/icons.css';
 @import "~nvd3/build/nv.d3.css";
+@import "~please-wait/build/please-wait.css";
 
 .ngx-datatable.bootstrap {
   box-shadow: none;
@@ -27,4 +28,12 @@
 .datatable-header-cell-label {
   line-height: 24px;
   font-weight: bold;
+}
+
+.ua-font {
+  font-family: "Anton", "Ubuntu", "Oswald", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 2rem;
+  font-weight: 400;
+  color: #ffffff;
+  text-transform: uppercase;
 }

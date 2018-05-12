@@ -9,7 +9,7 @@ import {
 } from '../../../lib/public_api';
 
 import { cloneDeep, random } from 'lodash-es';
-import {Router, ActivatedRoute, ParamMap } from "@angular/router";
+import {Router, ActivatedRoute, ParamMap, Params} from "@angular/router";
 import {NotificationsService} from "../notifications.service";
 import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
@@ -74,8 +74,8 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
   stocks: Stats[];
   stocksh: Stats[];
   private symbol: string;
-  private ndvol: number;
-  private ndprange: number;
+  private ndvol: number = 39;
+  private ndprange: number = 39;
   private time: number = 1;
   private realtime: boolean = true;
 
@@ -88,7 +88,8 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
   enableBootstrap = true;
   progressBar = true;
   extendedTimeOut = 150000;
-  easing = '30000';
+  easing = 'ease-in';
+  easeTime = '1000'
   progressAnimation = 'decreasing';
   timeOut = 30000;
 
@@ -114,14 +115,19 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.toastr.overlayContainer = this.toastContainer;
 
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params: Params) => {
       this.symbol=params['symbol'];
-      this.ndvol=params['ndvol'];
-      this.ndprange=params['ndprange'];
-      this.realtime=params['realtime'];
     });
 
-    // this.notificationsService.getNotifications().subscribe(data => {
+    this.route.queryParams.subscribe(params => {
+        this.ndvol = params["ndvol"];
+        this.ndprange = params["ndprange"];
+        this.realtime = params["realtime"];
+        this.time = params["time"];
+    });
+
+
+      // this.notificationsService.getNotifications().subscribe(data => {
     //     this.stocks = data;
     //   }
     // );
@@ -171,14 +177,14 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   refreshData(){
     // this.subscription.add(
-      this.notificationsService.getNotifications(this.symbol, this.realtime)
+      this.notificationsService.getNotifications(this.symbol, this.time, this.realtime, this.ndvol, this.ndprange)
         .subscribe(data => {
           this.stocks = data;
 
           if(this.stocks.length > 0) {
             for (var i = 0; i < this.stocks.length; i++) {
-                this.title = "Volume spike of: " + this.stocks[i].latestVolume + " Percentile: " + this.stocks[i].normalDist_Volume + "% - \n " + moment(new Date(this.stocks[i].time_part), "h:mm ZZ").fromNow() + ")";
-                this.message = this.stocks[i].symbol + " - " + this.stocks[i].name + " Price Range: " + this.stocks[i].normalDist_PRange;
+                this.title = this.stocks[i].symbol + " (" + this.stocks[i].name + ") " + this.stocks[i].time_part + "(ET)";
+                this.message = "VOL:" + this.stocks[i].latestVolume + " PR: " + this.stocks[i].pRange.toFixed(2);
                 if(this.stocks[i].latestVolume > 0) {
                   this.type = types[0]
               } else {
@@ -191,7 +197,7 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
         })
     // );
 
-    this.notificationsService.getNotifications(this.symbol, this.realtime)
+    this.notificationsService.getNotifications(this.symbol, this.time, this.realtime, this.ndvol, this.ndprange)
       .takeUntil(this.unsubscribe)
       .subscribe();
   }
@@ -199,7 +205,7 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
 
   doAction(){
     this.subscription.add(
-      this.notificationsService.getNotifications(this.symbol, this.realtime)
+      this.notificationsService.getNotifications(this.symbol, this.time, this.realtime, this.ndvol, this.ndprange)
         .subscribe(data => {
           if(data.length > 0){
             this.stocks = data;
@@ -224,7 +230,7 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     //   }
     // );
 
-    this.notificationsService.getNotifications(this.symbol, this.realtime).subscribe(data => {
+    this.notificationsService.getNotifications(this.symbol, this.time, this.realtime, this.ndvol, this.ndprange).subscribe(data => {
         this.stocksh = data;
       }
     );

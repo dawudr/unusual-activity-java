@@ -1,92 +1,204 @@
-<meta http-equiv="refresh" content="6000;URL='/'" />
+<meta http-equiv="refresh" content="6000;URL='/'"/>
 <br/>
 <div class="container">
-<!--
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">Home</a></li>
-    <li class="breadcrumb-item active">Alerts</li>
-  </ol>
--->
+    <!--
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active">Alerts</li>
+      </ol>
+    -->
 
-<!--<div class="jumbotron">
-  <h1 class="display-3">Notifications</h1>
-  <p class="lead">Live Alerts of Unusual Activity in Volumes Traded </p>
-  <hr class="my-4">
-  <p>Last scanned was done on {{momentAgo}} - <span class="badge badge-primary badge-pill">{{timeAgo}}</span></p>
-  <p class="lead">
-    <button (click)="doAction()" type="button" class="btn btn-primary btn-lg">
-      Scan markets now >>
-    </button>-->
-<!--    <button (click)="clearLastToast()" type="button" class="btn btn-primary btn-lg">
-      Clear Last Alert >>
-    </button>-->
-<!--    <button (click)="clearToasts()" type="button" class="btn btn-primary btn-lg">
-      Clear Alerts >>
-    </button>-->
-<!--
-  </p>
-</div>
--->
+    <!--<div class="jumbotron">
+      <h1 class="display-3">Notifications</h1>
+      <p class="lead">Live Alerts of Unusual Activity in Volumes Traded </p>
+      <hr class="my-4">
+      <p>Last scanned was done on {{momentAgo}} - <span class="badge badge-primary badge-pill">{{timeAgo}}</span></p>
+      <p class="lead">
+        <button (click)="doAction()" type="button" class="btn btn-primary btn-lg">
+          Scan markets now >>
+        </button>-->
+    <!--    <button (click)="clearLastToast()" type="button" class="btn btn-primary btn-lg">
+          Clear Last Alert >>
+        </button>-->
+    <!--    <button (click)="clearToasts()" type="button" class="btn btn-primary btn-lg">
+          Clear Alerts >>
+        </button>-->
+    <!--
+      </p>
+    </div>
+    -->
 
 
-<!--
-<div class="container">
-<div class="row">
-  <div class="col-12 text-center">
-    <p class="mb-1">
-      <small>Toast Controls:</small>
-    </p>
-    <div class="row justify-content-center">
-      <div class="col-lg-3 col-md-4 col-sm-12 col-12 mb-3">
-        <button (click)="openToast()" type="button" class="btn btn-primary btn-block">
-          Open Toast
-        </button>
+    <!--
+    <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <p class="mb-1">
+          <small>Toast Controls:</small>
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12 mb-3">
+            <button (click)="openToast()" type="button" class="btn btn-primary btn-block">
+              Open Toast
+            </button>
+          </div>
+          <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
+            <button (click)="clearLastToast()" type="button" class="btn btn-outline-primary btn-block">
+              Clear Last Toast
+            </button>
+          </div>
+          <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
+            <button (click)="clearToasts()" type="button" class="btn btn-outline-primary btn-block">
+              Clear All Toasts
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
-        <button (click)="clearLastToast()" type="button" class="btn btn-outline-primary btn-block">
-          Clear Last Toast
-        </button>
-      </div>
-      <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-3">
-        <button (click)="clearToasts()" type="button" class="btn btn-outline-primary btn-block">
-          Clear All Toasts
-        </button>
-      </div>
     </div>
-  </div>
-</div>
-</div>
--->
-
-
-
-<div class="list-group">
-
-
-  <div *ngFor="let alert of stocks" class="card">
-    <div class="card-header">
-      <i class="fa ffa-chevron-up fa-3x alert-success" aria-hidden="true"> </i> {{alert.symbol}} - {{alert.name}}
     </div>
-    <div class="card-body">
-      <h5 class="card-title">Special title treatment</h5>
-      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+    -->
+
+
+    <div class="container">
+
+
+        <div *ngIf="stocks; else templateName">
+            <button type="button" class="btn btn-primary">
+                Notifications <span class="badge badge-light">4</span>
+            </button>
+            <div  *ngFor="let alert of stocks" class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-1">
+                                    <i class="fa fa-arrow-up fa-3x text-success" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-2">
+                                    <h2><strong>{{alert.symbol}}</strong></h2>
+                                </div>
+                                <div class="col-7">
+                                    <h2>
+                                        <span class="text-muted">{{alert.name}}</span>
+                                    </h2>
+                                </div>
+                                <div class="col-2">
+                                    <div><span class="text-muted">Time: {{alert.time_part}} (ET)</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+
+    <!--                        <h5 class="card-title">
+
+                            </h5>-->
+
+                            <div class="card-text">
+                                <div class="row">
+                                    <div class="col-1"></div>
+                                    <div class="col-2"></div>
+                                    <div class="col-7">
+                                        <div class="row">
+                                            <div class="col-6">Volume: {{ alert.latestVolume }} ({{alert.normalDist_Volume | number}}%)
+                                            </div>
+                                            <div class="col-6">Price Range: ${{alert.pRange | number}} ({{alert.normalDist_PRange | number}}%)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-12">
+                    <br/>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #templateName>
+
+            <div class="alert alert-primary text-center" role="alert">
+                <h4><i class="fa fa-info-circle text-primary"></i>  No present alerts found. <br/><br/> Scanning for live alerts ...</h4>
+
+
+                <style type="text/css">
+                    /*
+                 *  Usage:
+                 *
+                      <div class="sk-wave">
+                        <div class="sk-rect sk-rect1"></div>
+                        <div class="sk-rect sk-rect2"></div>
+                        <div class="sk-rect sk-rect3"></div>
+                        <div class="sk-rect sk-rect4"></div>
+                        <div class="sk-rect sk-rect5"></div>
+                      </div>
+                 *
+                 */
+                    .sk-wave {
+                        margin: 30px auto;
+                        width: 750px;
+                        height: 60px;
+                        text-align: center;
+                        font-size: 15px; }
+                    .sk-wave .sk-rect {
+                        height: 100%;
+                        width: 9px;
+                        display: inline-block;
+                        -webkit-animation: sk-waveStretchDelay 1.2s infinite ease-in-out;
+                        animation: sk-waveStretchDelay 1.2s infinite ease-in-out; }
+                    .sk-wave .sk-rect1 {
+                        -webkit-animation-delay: -1.2s;
+                        animation-delay: -1.2s; }
+                    .sk-wave .sk-rect2 {
+                        -webkit-animation-delay: -1.1s;
+                        animation-delay: -1.1s; }
+                    .sk-wave .sk-rect3 {
+                        -webkit-animation-delay: -1s;
+                        animation-delay: -1s; }
+                    .sk-wave .sk-rect4 {
+                        -webkit-animation-delay: -0.9s;
+                        animation-delay: -0.9s; }
+                    .sk-wave .sk-rect5 {
+                        -webkit-animation-delay: -0.8s;
+                        animation-delay: -0.8s; }
+
+                    @-webkit-keyframes sk-waveStretchDelay {
+                        0%, 40%, 100% {
+                            -webkit-transform: scaleY(0.4);
+                            transform: scaleY(0.4); }
+                        20% {
+                            -webkit-transform: scaleY(1);
+                            transform: scaleY(1); } }
+
+                    @keyframes sk-waveStretchDelay {
+                        0%, 40%, 100% {
+                            -webkit-transform: scaleY(0.4);
+                            transform: scaleY(0.4); }
+                        20% {
+                            -webkit-transform: scaleY(1);
+                            transform: scaleY(1); } }
+
+                </style>
+
+                <div class="sk-wave text-primary">
+                    <div class="sk-rect sk-rect1 bg-primary"></div>
+                    <div class="sk-rect sk-rect2 bg-primary"></div>
+                    <div class="sk-rect sk-rect3 bg-primary"></div>
+                    <div class="sk-rect sk-rect4 bg-primary"></div>
+                    <div class="sk-rect sk-rect5 bg-primary"></div>
+                </div>
+            </div>
+
+
+        </ng-template>
+
+
     </div>
-  </div>
-
-  <a *ngFor="let alert of stocks" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-
-    <div class="d-flex w-100 justify-content-between">
-      <i class="fa fa-caret-up fa-3x" aria-hidden="true"> </i>
-      <h5 class="mb-1"> {{alert.symbol}} - {{alert.name}}</h5>
-      <small class="text-muted">{{alert.time_part}}</small>
-    </div>
-    <p class="mb-1">Volume peak: {{ alert.latestVolume }} at percentile: {{alert.normalDist_Volume}}%</p>
-    <small>Price Movement {{alert.pRange}} | Percentile:  {{alert.normalDist_PRange}}</small>
-  </a>
-
-</div>
-
 
 
 </div>

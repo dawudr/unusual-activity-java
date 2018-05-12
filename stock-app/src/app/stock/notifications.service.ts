@@ -35,7 +35,7 @@ export class NotificationsService {
   constructor(private http: Http) {
   }
 
-  getNotifications(symbol :string, realtime: boolean): Observable<Stats[]>  {
+  getNotifications(symbol :string, time: number, realtime: boolean, ndvol: number, ndprange: number): Observable<Stats[]>  {
     this.requesturl = "";
     if(symbol) {
         this.requesturl= this.apiUrl + "/" + symbol;
@@ -44,8 +44,33 @@ export class NotificationsService {
     }
 
     if(!realtime) {
-      this.requesturl = this.requesturl.concat('?realtime=false');
+        this.requesturl = this.requesturl.concat("?realtime=false")
+    } else {
+        this.requesturl = this.requesturl.concat('?realtime=true');
     }
+
+
+    if(time > 0 || !realtime || ndvol > 0 || ndprange > 0) {
+        if(time > 2) {
+            this.requesturl = this.requesturl.concat('&time=' + time);
+        }
+    }
+
+
+    if(ndvol > 0 || ndprange > 0) {
+
+        if(ndvol) {
+            this.requesturl= this.requesturl.concat('&ndvol=' + ndvol);
+        }
+
+        if(ndprange) {
+            this.requesturl= this.requesturl.concat('&ndprange=' + ndprange);
+        }
+
+    }
+
+    console.log("URL Request=" + this.requesturl);
+
 
     return this.http.get(this.requesturl)
       .map((res:Response) => res.json())
