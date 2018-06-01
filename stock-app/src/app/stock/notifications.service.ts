@@ -7,7 +7,7 @@ import {Stats} from "./stats";
 @Injectable()
 export class NotificationsService {
 
-  private apiUrl = API_HOST + '/api/alerts/data';
+  private apiUrl = API_HOST + '/api/stats/data';
 
   private dataSubject: BehaviorSubject<Stats[]> = new BehaviorSubject([]);
 
@@ -36,7 +36,7 @@ export class NotificationsService {
   }
 
   getNotifications(symbol :string, time: number, realtime: boolean, ndvol: number, ndprange: number): Observable<Stats[]>  {
-    this.requesturl = "";
+    var requesturl = "";
     if(symbol) {
         this.requesturl= this.apiUrl + "/" + symbol;
     } else {
@@ -69,13 +69,25 @@ export class NotificationsService {
 
     }
 
-    console.log("URL Request=" + this.requesturl);
-
-
+    console.log("URL=" + this.requesturl);
     return this.http.get(this.requesturl)
       .map((res:Response) => res.json())
       .catch(this.handleError);
   }
+
+
+  getVolumesToday(symbol :string): Observable<Stats[]>  {
+      var requesturl = API_HOST + '/api/stats/volumestoday/' + symbol;
+
+      console.log("URL Request=" + requesturl);
+
+      return this.http.get(requesturl)
+          .map((res:Response) => res.json())
+          .catch(this.handleError);
+  }
+
+
+
 
   private extractData(res: Response) {
     let body = res.json();

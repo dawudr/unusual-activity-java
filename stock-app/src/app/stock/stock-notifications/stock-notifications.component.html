@@ -1,6 +1,7 @@
 <meta http-equiv="refresh" content="6000;URL='/'"/>
+<script src="node_modules/sparkline/lib/sparkline.js"></script>
 <br/>
-<div class="container">
+<div class="container-fluid">
     <!--
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -58,86 +59,201 @@
     </div>
     -->
 
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-success" role="alert">
 
-    <div class="container">
+                <div class="form-row">
+                    <div class="col">
 
-
-        <div *ngIf="stocks; else templateName">
-            <button type="button" class="btn btn-primary">
-                Notifications <span class="badge badge-light">4</span>
-            </button>
-            <div  *ngFor="let alert of stocks" class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-1">
-                                    <i class="fa fa-arrow-up fa-3x text-success" aria-hidden="true"></i>
-                                </div>
-                                <div class="col-2">
-                                    <h2><strong>{{alert.symbol}}</strong></h2>
-                                </div>
-                                <div class="col-7">
-                                    <h2>
-                                        <span class="text-muted">{{alert.name}}</span>
-                                    </h2>
-                                </div>
-                                <div class="col-2">
-                                    <div><span class="text-muted">Time: {{alert.time_part}} (ET)</span></div>
-                                </div>
+                        <div class="input-group mx-sm-2 mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text text-nowrap" for="alerts-field"><i class="fa fa-bell fa-1x" aria-hidden="true"></i>&nbsp; Alerts</span>
                             </div>
+                                <input type="number" disabled class="form-control" id="alerts-field" [value]="stocks?.length || '0'">
+                                <!--<span class="badge badge-light">{{ stocks?.length || '0' }}</span>-->
                         </div>
 
-                        <div class="card-body">
+                    </div>
+                    <div class="col">
 
-    <!--                        <h5 class="card-title">
+                        <div class="input-group mx-sm-2 mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="symbol-field"><i class="fa fa-usd fa-1x" aria-hidden="true"></i>&nbsp; Symbol</label>
+                            </div>
+                            <select class="custom-select" id="symbol-field" [(ngModel)]="symbol" aria-label="symbol" aria-describedby="symbol-field"
+                                    (change)="onSymbolChange()">
+                                <option selected value="">-- All Symbols --</option>
+                                <option *ngFor="let symbol of symbols" [ngValue]="symbol.symbol">{{symbol.symbol}} - {{symbol.name}}</option>
+                            </select>
+                        </div>
 
-                            </h5>-->
+                    </div>
+                    <div class="col">
 
-                            <div class="card-text">
-                                <div class="row">
-                                    <div class="col-1"></div>
-                                    <div class="col-2"></div>
-                                    <div class="col-7">
-                                        <div class="row">
-                                            <div class="col-6">Volume: {{ alert.latestVolume }} ({{alert.normalDist_Volume | number}}%)
-                                            </div>
-                                            <div class="col-6">Price Range: ${{alert.pRange | number}} ({{alert.normalDist_PRange | number}}%)
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-2"></div>
+                        <div class="input-group mx-sm-2 mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-nowrap" for="time-field"><i class="fa fa-hourglass-end fa-1x" aria-hidden="true"></i>&nbsp; Minutes</label>
+                            </div>
+                            <input type="number" class="form-control input-sm" [(ngModel)]="time" id="time-field" (change)="refreshData()">
+                        </div>
+
+                    </div>
+                    <div class="col">
+
+                        <div class="input-group mx-sm-2 mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-nowrap" for="volume-field"><i class="fa fa-balance-scale fa-1x" aria-hidden="true"></i>&nbsp; Volume%</label>
+                            </div>
+                            <input type="number" class="form-control input-sm" [(ngModel)]="ndvol" id="volume-field" (change)="refreshData()">
+                        </div>
+
+                    </div>
+                    <div class="col">
+
+                        <div class="input-group mx-sm-2 mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-nowrap" for="ndprange-field"><i class="fa fa-money fa-1x" aria-hidden="true"></i>&nbsp; P.Range%</label>
+                            </div>
+                            <input type="number" class="form-control input-sm" [(ngModel)]="ndprange" id="ndprange-field" (change)="refreshData()">
+                        </div>
+
+
+<!--                        <button type="button" class="btn btn-primary">
+                            Alerts <span class="badge badge-light">{{ stocks?.length || '0' }}</span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary">
+                            Time <span class="badge badge-light">{{time}}mins</span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary">
+                            Volume % <span id="nd_volume_limit" class="badge badge-light">{{ndvol}}</span>
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            Price Range % <span class="badge badge-light">{{ndprange}}</span>
+                        </button>-->
+                    </div>
+                </div>
+
+                <!--<form [formGroup]="form1">-->
+
+                <!--</form>-->
+
+            </div>
+        </div>
+    </div>
+
+
+    <div *ngIf="stocks && stocks.length > 0; else templateName">
+        <div class="row">
+            <div class="col-12">
+
+                <!--START: Alert List -->
+                <div *ngFor="let alert of stocks; let i = index" [attr.data-index]="i" class="row" (onCreate)="getSparkline(alert.symbol)">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="badge badge-pill">
+                                    <i class="font-weight-bold fa fa-arrow-up fa-2x text-success"
+                                       aria-hidden="true"></i>&nbsp;
+                                    <span class="font-weight-bold h5"> {{alert.symbol}}</span>&nbsp;&nbsp;&nbsp;
+                                    <span class="text-muted h5">{{alert.name}}</span>
+                                    {{sparklineHtml}}
+                                </div>
+                                <div class="badge badge-light float-right">
+                                    <i class="fa fa-clock-o fa-1x" aria-hidden="true"></i>
+                                    {{alert.date | amCalendar }}
                                 </div>
                             </div>
+
+                            <div class="card-body">
+                                <h6 class="card-title text-justify text-primary">
+                                    <div class="row">
+                                        <div class="col">
+                                            <i class="fa fa-balance-scale fa-1x" aria-hidden="true"></i>&nbsp;
+                                            Volume: {{ alert.latestVolume | number }} ({{alert.normalDist_Volume | percent: '2.2' }})
+                                        <!--</div>-->
+                                        <!--<div>&nbsp; | &nbsp;</div>-->&nbsp; | &nbsp;
+                                        <!--<div class="col">-->
+                                            <i class="fa fa-money fa-1x" aria-hidden="true"></i>
+                                            Price Range: ${{alert.pRange | number}} ({{alert.normalDist_PRange | percent: '2.2'}})
+                                        </div>
+                                    </div>
+                                </h6>
+                                <div *ngIf="alert.news">
+                                    <h6 class="card-subtitle mb-2"><i
+                                            class="fa fa-newspaper-o fa-1x" aria-hidden="true"></i>&nbsp;&nbsp;{{alert.headline}}
+                                    </h6>
+                                    <p class="card-text text-muted">
+                                        {{alert.summary}}
+                                        <button type="button" class="card-link badge badge-primary text-right" (click)="open(alert.url)">
+                                            <i class="fa fa-external-link fa-1x" aria-hidden="true"></i>&nbsp;
+                                            {{alert.source}}
+                                        </button>
+                                    </p>
+
+                                    <!-- Button trigger modal -->
+<!--                                                    <button type="button" class="card-link badge badge-primary text-right" data-toggle="modal" data-target="'#modal' + i" (click)="open({{content}})">
+                                        <i class="fa fa-external-link fa-1x" aria-hidden="true"></i>&nbsp;
+                                        {{alert.source}}
+                                    </button>-->
+
+                                </div>
+                            </div>
+<!--                            <div class="card-footer">
+                                <a href="#" class="card-link">{{alert.related | split : ','}}</a>
+                            </div>-->
+
+
+                            <!-- Modal -->
+                            <ng-template #content let-c="close" let-d="dismiss">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Modal title</h4>
+                                    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>One fine body&hellip;</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-dark" (click)="('Close click')">Close</button>
+                                </div>
+                            </ng-template>
+                            <!-- End: Modal -->
 
                         </div>
                     </div>
+                    <div class="col-12" style="height:20px;"></div>
+                </div>
+                <!--END: Alert List -->
 
-                </div>
-                <div class="col-12">
-                    <br/>
-                </div>
+            </div>
+            <div class="col-7">
+
+                <div class="well">.</div>
             </div>
         </div>
-
-        <ng-template #templateName>
-
-            <div class="alert alert-primary text-center" role="alert">
-                <h4><i class="fa fa-info-circle text-primary"></i>  No present alerts found. <br/><br/> Scanning for live alerts ...</h4>
-
-                <div class="sk-wave text-primary">
-                    <div class="sk-rect sk-rect1 bg-primary"></div>
-                    <div class="sk-rect sk-rect2 bg-primary"></div>
-                    <div class="sk-rect sk-rect3 bg-primary"></div>
-                    <div class="sk-rect sk-rect4 bg-primary"></div>
-                    <div class="sk-rect sk-rect5 bg-primary"></div>
-                </div>
-            </div>
-
-        </ng-template>
-
-
     </div>
+
+    <ng-template #templateName>
+
+        <div class="alert alert-primary text-center" role="alert">
+            <h4><i class="fa fa-feed fa-3x text-primary"></i><br/> No current alerts found. <br/><br/><br/> Listening for live alerts ...</h4>
+
+            <div class="sk-wave text-primary">
+                <div class="sk-rect sk-rect1 bg-primary"></div>
+                <div class="sk-rect sk-rect2 bg-primary"></div>
+                <div class="sk-rect sk-rect3 bg-primary"></div>
+                <div class="sk-rect sk-rect4 bg-primary"></div>
+                <div class="sk-rect sk-rect5 bg-primary"></div>
+            </div>
+            <br/>
+            <h6 class="text-primary"><i class="fa fa-info-circle fa-1x text-primary"></i> Alerts feeds are received only during New York Stock Exchange (NYSE) market opening hours <br/> (Monday through Friday, 9:30 a.m. to 4:00 p.m. EST)</h6>
+        </div>
+
+    </ng-template>
 
 
 </div>

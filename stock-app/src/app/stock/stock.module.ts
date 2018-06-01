@@ -9,6 +9,9 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { StockChartComponent } from './stock-chart/stock-chart.component';
 import { NvD3Module } from 'ng2-nvd3';
 import { StockNotificationsComponent } from './stock-notifications/stock-notifications.component';
+import { MomentModule } from 'angular2-moment';
+import { MomentTimezoneModule } from 'angular-moment-timezone';
+import { SplitPipe} from '../split.pipe';
 
 @NgModule({
   imports: [
@@ -18,8 +21,11 @@ import { StockNotificationsComponent } from './stock-notifications/stock-notific
     FormsModule, // <-- import the FormsModule before binding with [(ngModel)]
     NgbModule.forRoot(),
     NgxDatatableModule,
-    NvD3Module
+    NvD3Module,
+    MomentModule,
+    MomentTimezoneModule,
   ],
-  declarations: [StockListComponent, StockFormComponent, StockChartComponent, StockNotificationsComponent]
+  declarations: [StockListComponent, StockFormComponent, StockChartComponent, StockNotificationsComponent, SplitPipe
+  ]
 })
 export class StockModule { }
