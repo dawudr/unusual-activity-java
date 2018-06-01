@@ -1,14 +1,18 @@
 package com.financialjuice.unusualactivity.repository;
 
+import com.financialjuice.unusualactivity.model.StockCompositeKey;
 import com.financialjuice.unusualactivity.model.StockData;
+import org.springframework.data.hazelcast.repository.HazelcastRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
@@ -28,41 +32,34 @@ import java.util.List;
  *
  */
 
+@Repository
 @CrossOrigin
 @RepositoryRestResource (path = "stock")
-public interface StockDataRepository extends JpaRepository<StockData, Long> {
+public interface StockDataRepository extends HazelcastRepository<StockData, StockCompositeKey> {
 
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query("UPDATE StockData s " +
-            "SET " +
-            "s.open = :open , " +
-            "s.close = :close , " +
-            "s.high = :high , " +
-            "s.low = :low , " +
-            "s.volume = :volume " +
-            "WHERE s.symbol = :symbol " +
-            "AND s.date = :date")
-    public int updateStock(@Param("symbol") String symbol, @Param("date") Date date,
-                    @Param("open") double open, @Param("close") double close,
-                    @Param("high") double high, @Param("low") double low,
-                    @Param("volume") long volume);
+            "SET s.open = :open , s.close = :close , s.high = :high , s.low = :low , s.volume = :volume " +
+            "WHERE s.symbol = :symbol AND s.date = :date")
+    public int updateStock(@Param("symbol") String symbol, @Param("date") Date date, @Param("open") double open, @Param("close") double close,
+                    @Param("high") double high, @Param("low") double low, @Param("volume") long volume);
 
     // StockDataFeeder - Last updated for Symbol Daily feeds
-    @Query("SELECT MAX(s.date) " +
-            "FROM StockData s " +
-            "WHERE s.symbol = :symbol")
+    @Query("SELECT MAX(s.date) FROM StockData s WHERE s.symbol = :symbol")
     public Date getLastUpdated(@Param("symbol") String symbol);
 
     // AlertsController - Last updated for Intraday feeds - fast to do one call.
-    @Query("SELECT MAX(s.date) " +
-            "FROM StockData s ")
+    @Query("SELECT MAX(s.date) FROM StockData s ")
     public Date getLastUpdatedAll();
 
     // StockDataController - For All Quotes By Symbol
     public List<StockData> findAllBySymbol(String symbol);
 
     public List<StockData> findAllBySymbolAndDateAfter(String symbol, Date date);
+
+    @Query("SELECT sd FROM StockData sd WHERE sd.symbol = :symbol AND sd.time_part = :time_part")
+    public List<StockData> getSymbolTimeSlice(@Param("symbol") String symbol, @Param("time_part") Time time_part);
 
     // TODO: FIX me.
     @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.symbol = :symbol AND sd.date BETWEEN :startDate AND :endDate")
@@ -88,4 +85,6 @@ public interface StockDataRepository extends JpaRepository<StockData, Long> {
     // TODO: Fix me
     @Query("SELECT sd.symbol, sd.volume FROM StockData sd WHERE sd.date = (SELECT MAX(s.date) from StockData s)")
     public List<StockData> getLatest();
+
+    public StockData findTopBySymbolOrderByDateDesc(String symbol);
 }

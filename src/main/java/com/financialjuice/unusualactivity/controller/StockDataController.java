@@ -1,15 +1,23 @@
 package com.financialjuice.unusualactivity.controller;
 
+import com.financialjuice.unusualactivity.model.StockCompositeKey;
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.repository.StockDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @RestController annotation is a combination of Spring’s @Controller and @ResponseBody annotations.
@@ -40,14 +48,23 @@ public class StockDataController {
     @RequestMapping(value="", method = RequestMethod.GET)
     public List<StockData> getAllStockData() {
         // This returns a JSON or XML
-        return stockDataRepository.findAll();
+        Iterable<StockData> iterator = stockDataRepository.findAll();
+        List<StockData> ls = StreamSupport
+                .stream(iterator.spliterator(), true)
+                .collect(Collectors.toList());
+        return ls;
     }
 
 
     // Get a Single StockData
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<StockData> getStockData(@PathVariable("id") Long id) {
-        StockData stockData = stockDataRepository.findOne(id);
+    @RequestMapping(value = "/{symbol}", method = RequestMethod.GET)
+    public ResponseEntity<StockData> getStockData(@PathVariable("symbol") String symbol,
+                                                  @RequestParam(value = "date", defaultValue = "", required = false)
+                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> dateParam) {
+
+        Date start = Date.from(dateParam.orElse(LocalDate.now().minusMonths(1)).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        StockCompositeKey key = new StockCompositeKey(symbol, start);
+        StockData stockData = stockDataRepository.findOne(key);
         if(stockData == null) {
             return ResponseEntity.notFound().build();
         }
@@ -70,9 +87,14 @@ public class StockDataController {
 
     // Update a StockData
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<StockData> updateStockData(@PathVariable(value = "id") Long id,
-                                     @Valid @RequestBody StockData stockDataUpdate) {
-        StockData stockData = stockDataRepository.findOne(id);
+    public ResponseEntity<StockData> updateStockData(@PathVariable("symbol") String symbol,
+                                                     @Valid @RequestBody StockData stockDataUpdate,
+                                                     @RequestParam(value = "date", defaultValue = "", required = false)
+                                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> dateParam) {
+
+        Date start = Date.from(dateParam.orElse(LocalDate.now()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        StockCompositeKey key = new StockCompositeKey(symbol, start);
+        StockData stockData = stockDataRepository.findOne(key);
         if(stockData == null) {
             return ResponseEntity.notFound().build();
         }
@@ -90,9 +112,14 @@ public class StockDataController {
     }
 
     // Delete a StockData
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<StockData> deleteStockData(@PathVariable(value = "id") Long id) {
-        StockData stockData = stockDataRepository.findOne(id);
+    @RequestMapping(value = "/{symbol}", method = RequestMethod.DELETE)
+    public ResponseEntity<StockData> deleteStockData(@PathVariable(value = "symbol") String symbol,
+                                                     @RequestParam(value = "date", defaultValue = "", required = false)
+                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> dateParam) {
+
+        Date start = Date.from(dateParam.orElse(LocalDate.now()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        StockCompositeKey key = new StockCompositeKey(symbol, start);
+        StockData stockData = stockDataRepository.findOne(key);
         if(stockData == null) {
             return ResponseEntity.notFound().build();
         }

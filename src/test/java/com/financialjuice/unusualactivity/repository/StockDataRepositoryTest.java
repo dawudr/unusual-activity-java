@@ -1,6 +1,6 @@
 package com.financialjuice.unusualactivity.repository;
 
-import com.financialjuice.unusualactivity.dto.StockDataDTO;
+import com.financialjuice.unusualactivity.Application;
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.model.SymbolData;
 import org.junit.After;
@@ -8,26 +8,33 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+//@DataJpaTest
+//@ContextConfiguration(classes = {Application.class})
+@SpringBootTest(properties = "/application-test.properties", classes = Application.class)
+//@SpringBootTest(properties = "/application-test.properties", classes = { Application.class, StockDataRepository.class, StockCompositeKey.class})
+//@ContextConfiguration
+@AutoConfigureMockMvc
+@TestPropertySource("classpath:application-test.properties")
 public class StockDataRepositoryTest {
 
     @Autowired
     StockDataRepository stockDataRepository;
 
-    @Autowired
-    StockDataDTORepository stockDataDTORepository;
 
     StockData expected , expected2;
 
@@ -56,8 +63,6 @@ public class StockDataRepositoryTest {
         System.out.println("ACTUAL:" + actual.toString());
         assertEquals(expected, actual);
 
-        // Tear down
-        stockDataRepository.delete(actual.getId());
     }
 
     @Test
@@ -75,9 +80,6 @@ public class StockDataRepositoryTest {
         System.out.println("ACTUAL:" + actual);
         assertEquals(s.getDate(), actual);
 
-        // Tear down
-        stockDataRepository.delete(s.getId());
-
     }
 
     @Test
@@ -93,10 +95,6 @@ public class StockDataRepositoryTest {
         StockData actual2 = l.get(1);
         assertEquals(expected, actual);
         assertEquals(expected2, actual2);
-
-        // Tear down
-        stockDataRepository.delete(actual.getId());
-        stockDataRepository.delete(actual2.getId());
 
     }
 
@@ -153,7 +151,6 @@ public class StockDataRepositoryTest {
     public void findAllBySectorAndDateAfter() {
 
         LocalDate today = LocalDate.now();
-        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         Date todayDate = new Date();
 
         // Setup
@@ -201,88 +198,43 @@ public class StockDataRepositoryTest {
 
 
     @Test
-    public void findTopByDate() {
+    public void findTopBySymbolOrderByDateDesc() {
 
-        LocalDate today = LocalDate.now();
-
+        LocalDateTime ldt_today = LocalDateTime.now();
 
         for(int i = 0; i < 100; i++) {
             int postfix = i % 10;
+            LocalDateTime realtime = ldt_today.minusMinutes(postfix);
+            Date today = Date.from(realtime.atZone(ZoneId.systemDefault()).toInstant());
+
             StockData expected = new StockData(
-                    java.sql.Date.valueOf(today.minusDays(postfix)),
-                    "TEST" + i,
+                    today,
+                    "TEST" + postfix,
                     new Integer(i).doubleValue() + 1.0,
                     new Integer(i).doubleValue() + 1.1,
                     new Integer(i).doubleValue() + 1.2,
                     new Integer(i).doubleValue() + 0.9,
-                    new Integer(i) + 1000L);
+                    new Integer(i) + 1000L,
+                    Date.from(realtime.toLocalDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+                    java.sql.Time.valueOf(realtime.toLocalTime()),
+                    ""
+            );
 
-//            expected.setSymbolData(symbolRepository.findOne("TEST" + postfix));
             stockDataRepository.save(expected);
         }
 
-        List<StockData> l = stockDataRepository.findAllByDateAfterOrderBySymbol(java.sql.Date.valueOf(today.minusDays(1)));
-        l.forEach(System.out::println);
+//        List<StockData> setupl = stockDataRepository.findAll();
+//        setupl.forEach(System.out::println);
 
-        assertEquals(10, l.size());
-
-
-    }
-
-
-
-    @Test
-    public void findAllByDateAfterOrderByDate() {
-
-        LocalDate today = LocalDate.now();
-
-        for(int i = 0; i < 100; i++) {
-            int postfix = i % 10;
-            StockData expected = new StockData(
-                    java.sql.Date.valueOf(today.minusDays(postfix)),
-                    "TEST" + i,
-                    new Integer(i).doubleValue() + 1.0,
-                    new Integer(i).doubleValue() + 1.1,
-                    new Integer(i).doubleValue() + 1.2,
-                    new Integer(i).doubleValue() + 0.9,
-                    new Integer(i) + 1000L);
-
-//            expected.setSymbolData(symbolRepository.findOne("TEST" + postfix));
-            stockDataRepository.save(expected);
-        }
-
-        List<StockDataDTO> l = stockDataDTORepository.findHistoricStockData(java.sql.Date.valueOf(today.minusDays(1)));
-        l.forEach(System.out::println);
-
-        assertEquals(10, l.size());
-
-    }
-
-
-    @Test
-    public void findAllByDateOrderByDate() {
-
-        LocalDate today = LocalDate.now();
-
-        for(int i = 0; i < 100; i++) {
-            int postfix = i % 10;
-            StockData expected = new StockData(
-                    java.sql.Date.valueOf(today.minusDays(postfix)),
-                    "TEST" + i,
-                    new Integer(i).doubleValue() + 1.0,
-                    new Integer(i).doubleValue() + 1.1,
-                    new Integer(i).doubleValue() + 1.2,
-                    new Integer(i).doubleValue() + 0.9,
-                    new Integer(i) + 1000L);
-
-//            expected.setSymbolData(symbolRepository.findOne("TEST" + postfix));
-            stockDataRepository.save(expected);
-        }
-
-        List<StockDataDTO> l = stockDataDTORepository.findRealtimeStockData(java.sql.Date.valueOf(today.minusDays(1)));
-        l.forEach(System.out::println);
-
-        assertEquals(10, l.size());
+        StockData l = stockDataRepository.findTopBySymbolOrderByDateDesc("TEST1");
+        System.out.println(l);
+        assertEquals("TEST1", l.getSymbol());
+        StockData l2 = stockDataRepository.findTopBySymbolOrderByDateDesc("TEST2");
+        System.out.println(l2);
+        assertEquals("TEST2", l2.getSymbol());
+        StockData l3 = stockDataRepository.findTopBySymbolOrderByDateDesc("TEST9");
+        System.out.println(l3);
+        assertEquals("TEST9", l3.getSymbol());
 
     }
 }

@@ -1,16 +1,16 @@
 USE UNUSUALACTIVITY; 
-SELECT * FROM stockdata WHERE symbol = 'AAPL';
-SELECT * FROM stockdata WHERE symbol = 'AAPL' AND 
+SELECT * FROM stockdata_bk WHERE symbol = 'AAPL';
+SELECT * FROM stockdata_bk WHERE symbol = 'AAPL' AND
 date > '2018-04-13 09:30:00' AND date < '2018-04-13 10:00:00';
 
-SELECT AVG(volume) FROM stockdata WHERE symbol = 'AAPL' 
+SELECT AVG(volume) FROM stockdata_bk WHERE symbol = 'AAPL'
 AND date > '2018-04-13 09:30:00' AND date < '2018-04-13 10:00:00';
 
 
 SET @top = (SELECT MAX(volume) FROM stockdata WHERE symbol = 'AAPL');
 SET @mean = (SELECT AVG(volume) FROM stockdata WHERE symbol = 'AAPL');
 SET @stdev = (SELECT STD(volume) FROM stockdata WHERE symbol = 'AAPL');
-SELECT *, FN_GAUSS_CDF(@mean, @stdev, volume) * 100 AS nd_percentage FROM stockdata WHERE symbol = 'AAPL' 
+SELECT *, FN_GAUSS_CDF(@mean, @stdev, volume) * 100 AS nd_percentage FROM stockdata_bk WHERE symbol = 'AAPL'
 AND date > '2018-04-13 09:30:00' AND date < '2018-04-13 10:00:00'
 ORDER BY date DESC;
 

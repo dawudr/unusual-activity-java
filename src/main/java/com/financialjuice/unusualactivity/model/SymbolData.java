@@ -7,23 +7,35 @@ import javax.persistence.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(name = "SymbolData")
-@Table(name="symboldata", catalog="UA", schema="DBO")
+@Table(name="symboldata")
 public class SymbolData extends AuditData {
 
     @Id
     @NotBlank
+    @Column(name="symbol", length=10)
     private String symbol;
+    @Column(length=100)
     private String name;
+    @Column(length=20)
     private String instrumentname; // ORD 10P
+    @Column(length=10)
     private String exchange; // LSE
+    @Column(length=20)
     private String market; // MAIN MARKET or AIM
+    @Column(length=20)
     private String datatype; // Equities
+    @Column(length=50)
     private String industry; // Financials
+    @Column(length=50)
     private String sector; // Financial Services
     private String startdate; //dd/mm/yyyy
+    @Column(length=50)
     private String country; // United Kingdom
+    @Column(length=10)
     private String currency; // GBX
+    @Column(length=10)
     private String marketcap; // £42.19 in £m
+    @Column(length=50)
     private String fcacategory; // Premium Equity Commercial Companies
 
     public SymbolData() {

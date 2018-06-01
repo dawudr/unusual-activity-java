@@ -1,7 +1,6 @@
 package com.financialjuice.unusualactivity.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import java.sql.Time;
@@ -10,26 +9,36 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(name = "StockData")
-@Table(name="stockdata", catalog="UA", schema="DBO")
+@IdClass(StockCompositeKey.class)
+@Table(name="stockdata",
+        uniqueConstraints=@UniqueConstraint(columnNames={"symbol","date"}),
+        indexes = {@Index(name = "i_stockdata", columnList = "symbol,date")})
 public class StockData extends AuditData implements Comparable<StockData> {
 
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    private long id;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="date")
     private Date date;
-    @NotBlank
+    @Id
+    @Column(name="symbol", length=10)
     private String symbol;
     private double open;
     private double close;
     private double high;
     private double low;
     private long volume;
+    @Basic
+    @Temporal(TemporalType.DATE)
     private Date date_part;
+    @Basic
+    @Column(name="Time_part")
     private Time time_part;
-
-//    @ManyToOne(optional=true)
-//    @JoinColumn(name = "symbol", insertable=false, updatable=false)
-//    private SymbolData symbolData;
+    @Transient
+    private String news;
 
     public StockData() {
         if (this.getCreatedAt() == null)
@@ -50,13 +59,19 @@ public class StockData extends AuditData implements Comparable<StockData> {
         this.setUpdatedAt(new Date());
     }
 
-    public long getId() {
-        return id;
+    public StockData(Date date, String symbol, double open, double close, double high, double low, long volume, Date date_part, Time time_part, String news) {
+        this.date = date;
+        this.symbol = symbol;
+        this.open = open;
+        this.close = close;
+        this.high = high;
+        this.low = low;
+        this.volume = volume;
+        this.date_part = date_part;
+        this.time_part = time_part;
+        this.news = news;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public Date getDate() {
         return date;
@@ -118,7 +133,7 @@ public class StockData extends AuditData implements Comparable<StockData> {
         return date_part;
     }
 
-    public void setDate_part(Date date_part) {
+    public void setDate_part(java.sql.Date date_part) {
         this.date_part = date_part;
     }
 
@@ -130,17 +145,27 @@ public class StockData extends AuditData implements Comparable<StockData> {
         this.time_part = time_part;
     }
 
+    public String getNews() {
+        return news;
+    }
+
+    public void setNews(String news) {
+        this.news = news;
+    }
+
     @Override
     public String toString() {
         return "StockData{" +
-                "id=" + id +
-                ", date=" + date +
+                "date=" + date +
                 ", symbol='" + symbol + '\'' +
                 ", open=" + open +
                 ", close=" + close +
                 ", high=" + high +
                 ", low=" + low +
                 ", volume=" + volume +
+                ", date_part=" + date_part +
+                ", time_part=" + time_part +
+                ", news='" + news + '\'' +
                 '}';
     }
 
@@ -168,3 +193,4 @@ public class StockData extends AuditData implements Comparable<StockData> {
         return symbol.compareTo(o.getSymbol());
     }
 }
+

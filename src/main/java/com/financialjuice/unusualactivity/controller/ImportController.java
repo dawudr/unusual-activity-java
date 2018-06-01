@@ -2,6 +2,7 @@ package com.financialjuice.unusualactivity.controller;
 
 import com.financialjuice.unusualactivity.batch.SymbolImporterJobConfiguration;
 import com.financialjuice.unusualactivity.batch.SymbolNYSEImporterJobConfiguration;
+import com.financialjuice.unusualactivity.batch.SymbolUSVolumeLeadersImporterJobConfiguration;
 import com.financialjuice.unusualactivity.rest.StockDataRestClient;
 import com.financialjuice.unusualactivity.tasks.IntradayBatchFeeder;
 import com.financialjuice.unusualactivity.tasks.IntradayFeeder;
@@ -36,11 +37,18 @@ public class ImportController {
     @Value("${file.import.companies.nasdaq}")
     private String lse_file_nasdaq;
 
+    @Value("${file.import.companies.usexch.volume.leaders}")
+    private String file_us_volume_leaders;
+
+
     @Autowired
     SymbolImporterJobConfiguration symbolImporterJobConfiguration;
 
     @Autowired
     SymbolNYSEImporterJobConfiguration symbolNYSEImporterJobConfiguration;
+
+    @Autowired
+    SymbolUSVolumeLeadersImporterJobConfiguration symbolUSVolumeLeadersImporterJobConfiguration;
 
     @Autowired
     JobLauncher jobLauncher;
@@ -88,6 +96,24 @@ public class ImportController {
         executionStatus.append(("Importing Companies. Exchange: NYSE ExitStatus : " + execution_nyse.getStatus()));
         return executionStatus.toString();
     }
+
+    @RequestMapping("/volumeleaders")
+    public String importUSVolumeLeaders() throws Exception{
+        log.debug("Started importUSVolumeLeaders from HTTP request");
+        JobParameters jobParameters =
+                new JobParametersBuilder()
+                        .addLong("time",System.currentTimeMillis())
+                        .addString("exchange", "US")
+                        .addString("fileName", file_us_volume_leaders)
+                        .toJobParameters();
+        JobExecution execution = jobLauncher.run(symbolUSVolumeLeadersImporterJobConfiguration.job_SymbolImporter(), jobParameters);
+
+        StringBuilder executionStatus = new StringBuilder();
+        executionStatus.append(("Importing Companies. Exchange: US Volume Leaders ExitStatus : " + execution.getStatus()));
+        return executionStatus.toString();
+    }
+
+
 
     @RequestMapping("/symbols")
     public String importSymbols() {

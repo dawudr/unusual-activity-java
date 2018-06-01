@@ -1,7 +1,13 @@
 package com.financialjuice.unusualactivity.config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.hazelcast.HazelcastKeyValueAdapter;
+import org.springframework.data.hazelcast.repository.config.EnableHazelcastRepositories;
+import org.springframework.data.keyvalue.core.KeyValueOperations;
+import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.builders.PathSelectors;
@@ -13,6 +19,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
+@EnableHazelcastRepositories
 @Import(SpringDataRestConfiguration.class)
 public class WebConfig extends WebMvcConfigurerAdapter {
 
@@ -42,4 +49,20 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return objectMapper;
     }*/
+
+    @Bean
+    HazelcastInstance hazelcastInstance() {
+        return Hazelcast.newHazelcastInstance();
+        // return HazelcastClient.newHazelcastClient();
+    }
+
+    @Bean
+    public KeyValueOperations keyValueTemplate(HazelcastInstance hazelcastInstance) {
+        return new KeyValueTemplate(new HazelcastKeyValueAdapter(hazelcastInstance));
+    }
+
+    @Bean
+    public HazelcastKeyValueAdapter hazelcastKeyValueAdapter(HazelcastInstance hazelcastInstance) {
+        return new HazelcastKeyValueAdapter(hazelcastInstance);
+    }
 }

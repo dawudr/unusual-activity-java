@@ -3,6 +3,7 @@ package com.financialjuice.unusualactivity.services;
 
 import com.financialjuice.unusualactivity.model.StockData;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 public class StatisticsService {
 
     private static DecimalFormat df2 = new DecimalFormat(".##");
-
 
     public List<Map<String, Object>> getDataSeries(List<StockData> l) {
 
@@ -46,10 +46,10 @@ public class StatisticsService {
         return computation;
     }
 
-
-    private Map<String, Object> compute(String symbol, DescriptiveStatistics stats) {
+    public Map<String, Object> compute(String symbol, DescriptiveStatistics stats) {
 
         // Compute some statistics
+
         Map<String, Object> map = new HashMap();
         map.put("symbol", symbol);
         map.put("mean", stats.getMean());
@@ -62,6 +62,14 @@ public class StatisticsService {
         map.put("kurtosis", stats.getKurtosis());
         return map;
     }
+
+    public double computeNormalDistribution(double mean, double stddev, double value) {
+        NormalDistribution d = new NormalDistribution(mean, stddev);
+        return d.cumulativeProbability(value);
+    }
+
+
+
 
 
 

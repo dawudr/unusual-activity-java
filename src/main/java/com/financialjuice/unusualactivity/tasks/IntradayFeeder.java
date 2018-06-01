@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Javax’s @PostConstruct annotation can be used for annotating a method that should be run once immediately after the bean’s initialization. Keep in mind that the annotated method will be executed by Spring even if there is nothing to inject.
@@ -61,7 +63,10 @@ public class IntradayFeeder implements Runnable {
 
         log.info("Started IntradayFeeder");
 
-        List<SymbolData> ls = symbolRepository.findAll();
+        Iterable<SymbolData> iterator = symbolRepository.findAll();
+        List<SymbolData> ls = StreamSupport
+                .stream(iterator.spliterator(), true)
+                .collect(Collectors.toList());
         log.debug("Importing Intraday Stockdata for {} Symbols", ls.size());
         ls.forEach(s -> {
 //                    Thread thread = new Thread(new Runnable() {

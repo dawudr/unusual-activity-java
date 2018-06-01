@@ -1,33 +1,33 @@
 package com.financialjuice.unusualactivity.model;
 
 import java.io.Serializable;
-import java.sql.Time;
+import java.util.Date;
 import java.util.Objects;
 
-public class StatsCompositeKey implements Serializable {
+public class StockCompositeKey implements Serializable {
     private String symbol;
-    private Time time_part;
+    private Date date;
 
-    public StatsCompositeKey() {
+    public StockCompositeKey() {
     }
 
-    public StatsCompositeKey(String symbol, Time time_part) {
+    public StockCompositeKey(String symbol, Date date) {
         this.symbol = symbol;
-        this.time_part = time_part;
+        this.date = date;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StatsCompositeKey that = (StatsCompositeKey) o;
+        StockCompositeKey that = (StockCompositeKey) o;
         return Objects.equals(symbol, that.symbol) &&
-                Objects.equals(time_part, that.time_part);
+                Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(symbol, time_part);
+        return Objects.hash(symbol, date);
     }
 }

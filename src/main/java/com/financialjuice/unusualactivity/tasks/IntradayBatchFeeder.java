@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -49,6 +50,7 @@ public class IntradayBatchFeeder implements Runnable {
     @Autowired
     private ApplicationContext applicationContext;
 
+    public static final int batchSize = 100;
 
     @Override
     public void run() {
@@ -68,7 +70,10 @@ public class IntradayBatchFeeder implements Runnable {
 
         log.info("Started IntradayFeeder");
 
-        List<SymbolData> ls = symbolRepository.findAll();
+        Iterable<SymbolData> iterator = symbolRepository.findAll();
+        List<SymbolData> ls = StreamSupport
+                .stream(iterator.spliterator(), true)
+                .collect(Collectors.toList());
         log.debug("Importing Intraday Batch Stockdata for {} Symbols", ls.size());
         importFeed(ls);
 
@@ -81,7 +86,7 @@ public class IntradayBatchFeeder implements Runnable {
      * @param input
      * @return
      */
-    private List<StockData> cleanFeed(List<StockData> input) {
+    public List<StockData> cleanFeed(List<StockData> input) {
         long startTime = System.currentTimeMillis();
         List<StockData> output = new ArrayList<>();
 
@@ -118,7 +123,7 @@ public class IntradayBatchFeeder implements Runnable {
      *
      * @param symbols
      */
-    private void importFeed(List<SymbolData> symbols) {
+    public void importFeed(List<SymbolData> symbols) {
         log.info("Importing StockData for [{}] symbols", symbols.size());
         long startTime0 = System.currentTimeMillis();
 
@@ -128,13 +133,15 @@ public class IntradayBatchFeeder implements Runnable {
         // Process each partition
         int batchNo = 0;
         for(List<SymbolData> p : partitions) {
-            String batchName =  String.format("BatchNo: [%s of %s] with Symbols [%s -> %s]", batchNo, partitions.size(), p.get(0).getSymbol(), p.get(partitions.size()).getSymbol());
+
+            String batchName =  String.format("BatchNo: [%s of %s] with Symbols [%s -> %s]", batchNo, partitions.size(), p.get(0).getSymbol(), p.get(p.size()-1).getSymbol());
             log.info("Processing {}", batchName);
             batchNo++;
 
             Thread thread = new Thread(new Runnable() {
                 public void run()
                 {
+
                     long startTime1 = System.currentTimeMillis();
                     // Convert ArrayList<Symbol> to a csv parameter list of symbols for HTTP Rest request
                     String csv = p.stream()
@@ -172,11 +179,12 @@ public class IntradayBatchFeeder implements Runnable {
     }
 
 
-    private List<List<SymbolData>> getSymbolPartitions(List<SymbolData> symbols) {
-        int batchSize = 100;
-        // Limit of API batch symbols is 100 so divide
-        List<List<SymbolData>> partitions = IntStream.range(0, ((symbols.size() -1) / batchSize))
-                .mapToObj(n -> symbols.subList(n * batchSize, Math.min((n + 1) * batchSize, symbols.size())))
+    public List<List<SymbolData>> getSymbolPartitions(List<SymbolData> symbols) {
+        // Limit of API batch symbols is 100 so divi
+        // 1. Define the partition range, n plus 1 if MOD has remainder.
+        // 2. Map sublists starting with n=0 -> Minimum of n * batchsize (if not last batch) or list size (if last batch)
+        List<List<SymbolData>> partitions = IntStream.range(0, ((symbols.size()) / batchSize) + ((symbols.size()%batchSize == 0) ? 0:1))
+                .mapToObj(n -> symbols.subList(n * batchSize, Math.min((n * batchSize) + batchSize, symbols.size())))
                 .collect(Collectors.toList());
         log.info("Partitioning StockData feed into [{}] batches of batch size: {}", partitions.size(), batchSize);
         return partitions;

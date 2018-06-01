@@ -1,17 +1,20 @@
 package com.financialjuice.unusualactivity.repository;
 
 import com.financialjuice.unusualactivity.model.SymbolData;
+import org.springframework.data.hazelcast.repository.HazelcastRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
+@Repository
 @CrossOrigin
 @RepositoryRestResource( path = "symbol")
-public interface SymbolRepository  extends JpaRepository<SymbolData, String> {
+public interface SymbolRepository  extends HazelcastRepository<SymbolData, String> {
 
     /**
      * Finds a Symbols of
@@ -27,4 +30,5 @@ public interface SymbolRepository  extends JpaRepository<SymbolData, String> {
     public List<SymbolData> findSymbolsByLSE();
 
     public List<SymbolData> findSymbolsByExchange(@Param("exchange") String exchange);
+
 }

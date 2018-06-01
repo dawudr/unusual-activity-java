@@ -42,7 +42,7 @@ public class StockDataDTORepository {
 
         log.debug("Fetching Stock ON date {}", date);
 //        String sql = "SELECT sd, sy.name FROM StockData sd JOIN SymbolData sy WHERE sd.date = " + date.toString() + " ORDER BY sd.symbol";
-        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date = '" + date.toString() + "' ORDER BY sd.symbol";
+        String sql = "SELECT *, sy.name FROM stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date = '" + date.toString() + "' ORDER BY sd.symbol";
         List <StockDataDTO> stocks = new ArrayList();
 
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -93,14 +93,14 @@ public class StockDataDTORepository {
         String sql = null;
         if(symbol != null && !symbol.isEmpty()) {
             if(!realtime) {
-                sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             } else {
-                sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
+                sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.symbol = '" + symbol + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated";
             }
         } else if (!realtime) {
-            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
+            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part > '" + timePastStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated;";
         } else {
-            sql = "SELECT *, sy.name FROM UA.dbo.SymbolStats ss INNER JOIN UA.dbo.symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
+            sql = "SELECT *, sy.name FROM SymbolStats ss INNER JOIN symboldata sy ON ss.symbol = sy.symbol WHERE ss.Time_Part BETWEEN '" + timePastStr + "' AND '" + timeNowStr + "' AND ss.NormalDist > " + ndvol + " AND ss.NormalDist_PRange > " + ndprange + " ORDER BY ss.DateCreated;";
         }
 
 
@@ -139,7 +139,7 @@ public class StockDataDTORepository {
     public List<StockDataDTO> findHistoricStockData(Date date) {
         log.debug("Fetching Stock AFTER date {}", date);
 
-        String sql = "SELECT *, sy.name FROM dbo.stockdata sd INNER JOIN dbo.symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY;";
+        String sql = "SELECT *, sy.name FROM stockdata sd INNER JOIN symboldata sy ON sd.symbol = sy.symbol WHERE sd.date > '" + date.toString() + "' ORDER BY sd.date;";
         List<StockDataDTO> stocks = new ArrayList();
 
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -176,28 +176,28 @@ public class StockDataDTORepository {
         long startTime = System.currentTimeMillis();
 
 // TODO: Mysql Insert Make compatible
-//        String sql = "INSERT INTO stockdata " +
-//                "(date, symbol, open, close, high, low, volume ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO stockdata " +
+                "(symbol, date, open, close, high, low, volume, date_part, time_part) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 //        String sql = "INSERT INTO stockdata " +
 //                "([date], [symbol], [open], [close], [high], [low], [volume], [date_part], [time_part]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
-        String sql = "{call AddStockData(?, ?, ?, ?, ?, ?, ?)}";
+//        String sql = "{call AddStockData(?, ?, ?, ?, ?, ?, ?)}";
 
 
         int[] updateCounts = jdbcTemplate.batchUpdate(sql,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         log.debug("Batch Insert Stockdata: " + stocks.get(i).toString());
-                        ps.setTimestamp(2, new Timestamp(stocks.get(i).getDate().getTime()));
+                        ps.setTimestamp(2, new java.sql.Timestamp(stocks.get(i).getDate().getTime()));
                         ps.setString(1, stocks.get(i).getSymbol());
                         ps.setDouble(3, stocks.get(i).getOpen());
                         ps.setDouble(4, stocks.get(i).getClose());
                         ps.setDouble(6, stocks.get(i).getHigh());
                         ps.setDouble(5, stocks.get(i).getLow());
                         ps.setLong(7, stocks.get(i).getVolume());
-//                        ps.setDate(8, new java.sql.Date(stocks.get(i).getDate_part().getTime()));
-//                        ps.setTime(9, stocks.get(i).getTime_part());
+                        ps.setDate(8, new java.sql.Date(stocks.get(i).getDate_part().getTime()));
+                        ps.setTime(9, stocks.get(i).getTime_part());
                     }
 
                     public int getBatchSize() {
@@ -205,7 +205,7 @@ public class StockDataDTORepository {
                     }
                 } );
 
-        log.debug("BatchUpdate Success for [{}] stocks. Elapsed time: {}ms", updateCounts.length, (System.currentTimeMillis() - startTime));
+        log.info("BatchUpdate Success for [{}] stocks. Elapsed time: {}ms", updateCounts.length, (System.currentTimeMillis() - startTime));
         return updateCounts;
     }
 }

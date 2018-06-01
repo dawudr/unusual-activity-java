@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -24,14 +24,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Service
-public class IntradayBatchRestClient {
+@Component
+public class RealtimeBatchRestClient {
 
-    private static final Logger log = LoggerFactory.getLogger(IntradayBatchRestClient.class);
+    private static final Logger log = LoggerFactory.getLogger(RealtimeBatchRestClient.class);
     private static final DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm");
 
 
-    public IntradayBatchRestClient() {
+    public RealtimeBatchRestClient() {
     }
 
     /**
@@ -71,7 +71,7 @@ public class IntradayBatchRestClient {
                     JsonNode root = mapper.readTree(response.getBody());
 
                     if (!root.isNull()) {
-                        log.debug("Response Body as JSON: " + root.toString());
+                        log.debug("Response Body as JSON: {} ...", root.toString().substring(0,20));
 
                         Iterator<Map.Entry<String, JsonNode>> elements = root.fields();
                         log.info("Fetched: [{}] stocks from request", root.size());
@@ -92,26 +92,38 @@ public class IntradayBatchRestClient {
 
                             JsonNode dataNode_l2_chart = dataNode_l1.get("chart");
                             if(dataNode_l2_chart.isArray()) {
-                                Iterator<JsonNode> jsonNodeIterator = dataNode_l2_chart.elements();
-                                while (jsonNodeIterator.hasNext()) {
-                                    JsonNode itemNode = jsonNodeIterator.next();
 
+                                JsonNode itemNode = null;
+                                // Work around for 15mins delayed
+                                for (int i = dataNode_l2_chart.size(); i > 0; i--) {
+                                    itemNode = dataNode_l2_chart.get(i - 1);
+                                    if (itemNode.get("date") != null &&
+                                            itemNode.get("minute") != null &&
+                                            itemNode.get("marketVolume") != null &&
+                                            itemNode.get("marketHigh") != null && itemNode.get("marketHigh").asDouble() > 0 &&
+                                            itemNode.get("marketLow") != null && itemNode.get("marketLow").asDouble() > 0) {
+                                        break;
+                                    }
+                                    log.debug("Ignoring quote is 15 minutes delayed for Symbol[{}] -> {}", symbol, itemNode.toString());
+                                }
+
+                                if (itemNode != null) {
                                     log.debug("Chart Node for Symbol[{}] -> {}", symbol, itemNode.toString());
 
                                     // Clean bad data
-                                    if(itemNode.get("date") != null &&
+                                    if (itemNode.get("date") != null &&
                                             itemNode.get("minute") != null &&
                                             itemNode.get("marketVolume") != null &&
                                             itemNode.get("marketHigh") != null && itemNode.get("marketHigh").asDouble() > 0 &&
                                             itemNode.get("marketLow") != null && itemNode.get("marketLow").asDouble() > 0) {
 
-                                        if(itemNode.get("marketVolume").asLong() == 0L ) {
-                                            log.error("Symbol {} Volume was zero", symbol);
+                                        if (itemNode.get("marketVolume").asLong() <= 0L) {
+                                            log.error("Symbol {} Volume was {}", symbol, itemNode.get("marketVolume").asLong());
                                         }
                                         //TODO: Do check and use Realtime when market open
                                         String dateStr = itemNode.get("date").asText();
                                         String timeStr = itemNode.get("minute").asText();
-//                                        Date date = df.parse(dateStr + " " + timeStr);
+    //                                        Date date = df.parse(dateStr + " " + timeStr);
 
                                         String dateTimeStrRaw = dateStr + " " + timeStr;
                                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm");
@@ -156,7 +168,7 @@ public class IntradayBatchRestClient {
     }
 
     public static void main(String[] args) {
-        IntradayBatchRestClient s = new IntradayBatchRestClient();
+        RealtimeBatchRestClient s = new RealtimeBatchRestClient();
         List<StockData> l = s.getIntradayData("AAPL,BP,RDS.A,RDS.B,CNA,GOOG,FB,MSFT");
         l.stream().forEach(System.out::println);
         System.out.println(l.stream().count());

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
+@Deprecated
 @Service
 public class StockDataRestClient {
 
