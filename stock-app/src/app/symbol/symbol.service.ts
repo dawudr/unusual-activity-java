@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {API_HOST} from "../../constants";
 import {Http, Response} from "@angular/http";
 import {Observable} from "rxjs/Rx";
-import {Stock} from "../stock/stock";
+import {Symbol} from "./symbol";
 
 @Injectable()
 export class SymbolService {
@@ -12,13 +12,13 @@ export class SymbolService {
     constructor(private http: Http) {
     }
 
-    findAll(): Observable<Stock[]>  {
+    findAll(): Observable<Symbol[]>  {
         return this.http.get(this.apiUrl)
             .map((res:Response) => res.json())
             .catch(this.handleError);
     }
 
-    findBySymbol(symbol: string): Observable<Stock> {
+    findBySymbol(symbol: string): Observable<Symbol> {
         return this.http.get(this.apiUrl + '/' + symbol)
             .map((res:Response) => res.json())
             .catch(this.handleError);
