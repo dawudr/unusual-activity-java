@@ -33,7 +33,7 @@ public class StatsGrid implements Serializable {
     private long latestVolume;
     @Column(name="name", length=100)
     private String name;
-    @Column(name="news", length=20000)
+    @Column(name="news", length = 65535, columnDefinition = "text")
     private String news;
     @Basic
     @Temporal(TemporalType.DATE)
