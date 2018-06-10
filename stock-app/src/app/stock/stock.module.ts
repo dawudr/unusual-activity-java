@@ -12,6 +12,7 @@ import { StockNotificationsComponent } from './stock-notifications/stock-notific
 import { MomentModule } from 'angular2-moment';
 import { MomentTimezoneModule } from 'angular-moment-timezone';
 import { SplitPipe} from '../split.pipe';
+import {StockSparklineComponent} from "./stock-sparkline/stock-sparkline.component";
 
 @NgModule({
   imports: [
@@ -25,7 +26,7 @@ import { SplitPipe} from '../split.pipe';
     MomentModule,
     MomentTimezoneModule,
   ],
-  declarations: [StockListComponent, StockFormComponent, StockChartComponent, StockNotificationsComponent, SplitPipe
+  declarations: [StockListComponent, StockFormComponent, StockChartComponent, StockNotificationsComponent, SplitPipe, StockSparklineComponent
   ]
 })
 export class StockModule { }

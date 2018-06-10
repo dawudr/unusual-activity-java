@@ -1,15 +1,11 @@
 package com.financialjuice.unusualactivity.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Time;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(name = "StatsGrid")
@@ -43,7 +39,7 @@ public class StatsGrid implements Serializable {
     @Column(name="time_part")
     private Time time_part;
     @Transient
-    private List<Long> volumes;
+    private List<ChartSeries> chartSeries;
 
     public StatsGrid() {
     }
@@ -141,12 +137,12 @@ public class StatsGrid implements Serializable {
         this.time_part = time_part;
     }
 
-    public List<Long> getVolumes() {
-        return volumes;
+    public List<ChartSeries> getChartSeries() {
+        return chartSeries;
     }
 
-    public void setVolumes(List<Long> volumes) {
-        this.volumes = volumes;
+    public void setChartSeries(List<ChartSeries> chartSeries) {
+        this.chartSeries = chartSeries;
     }
 
     @Override
@@ -162,7 +158,7 @@ public class StatsGrid implements Serializable {
                 ", news='" + news + '\'' +
                 ", date_part=" + date_part +
                 ", time_part=" + time_part +
-                ", volumes=" + volumes +
+                ", chartSeries=" + chartSeries +
                 '}';
     }
 

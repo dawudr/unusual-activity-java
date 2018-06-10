@@ -1,6 +1,6 @@
 package com.financialjuice.unusualactivity.controller;
 
-import com.financialjuice.unusualactivity.dto.StatsDTO;
+import com.financialjuice.unusualactivity.model.ChartSeries;
 import com.financialjuice.unusualactivity.model.StatsGrid;
 import com.financialjuice.unusualactivity.model.StockData;
 import com.financialjuice.unusualactivity.repository.StatsGridCacheRepository;
@@ -8,7 +8,6 @@ import com.financialjuice.unusualactivity.repository.StockDataRepository;
 import com.financialjuice.unusualactivity.services.StatisticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -61,6 +59,7 @@ public class StockStatsController {
         ZoneId zoneUS = ZoneId.of("America/New_York");
         ZonedDateTime timePast = ZonedDateTime.now().withZoneSameInstant(zoneUS).minusMinutes(time);
         Date datePastUS = Date.from(timePast.toLocalDateTime().atZone(ZoneId.systemDefault()).toInstant());
+        Date fromDate = Date.from(timePast.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Iterable<StatsGrid> iterator = statsGridCacheRepository.findAllByDateAfter(datePastUS);
         List<StatsGrid> statsGrids = StreamSupport
@@ -78,8 +77,8 @@ public class StockStatsController {
         // Add Sparklines volumes
         statsGrids = statsGrids.stream()
                 .map(statsGrid -> {
-                    List<Long> l = getVolumesDataBySymbol(statsGrid.getSymbol());
-                    statsGrid.setVolumes(l);
+                    List<ChartSeries> l = getVolumesDataBySymbol(statsGrid.getSymbol(), fromDate);
+                    statsGrid.setChartSeries(l);
                     return statsGrid;
                 }).collect(Collectors.toList());
 
@@ -98,6 +97,7 @@ public class StockStatsController {
         ZoneId zoneUS = ZoneId.of("America/New_York");
         ZonedDateTime timePast = ZonedDateTime.now().withZoneSameInstant(zoneUS).minusMinutes(time);
         Date datePastUS = Date.from(timePast.toLocalDateTime().atZone(ZoneId.systemDefault()).toInstant());
+        Date fromDate = Date.from(timePast.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Iterable<StatsGrid> iterator = statsGridCacheRepository.findAllBySymbolAndDateAfter(symbol, datePastUS);
         List<StatsGrid> statsGrids = StreamSupport
@@ -114,8 +114,8 @@ public class StockStatsController {
         // Add Sparklines volumes
         statsGrids = statsGrids.stream()
                 .map(statsGrid -> {
-                    List<Long> l = getVolumesDataBySymbol(statsGrid.getSymbol());
-                    statsGrid.setVolumes(l);
+                    List<ChartSeries> l = getVolumesDataBySymbol(statsGrid.getSymbol(), fromDate);
+                    statsGrid.setChartSeries(l);
                     return statsGrid;
                 }).collect(Collectors.toList());
         log.debug("Retrieved: {} statsGrids results for symbol: {} from time {} mins ago at:{}", symbol, statsGrids.size(), time, datePastUS);
@@ -124,21 +124,24 @@ public class StockStatsController {
     }
 
     @RequestMapping(value = "/volumestoday/{symbol}", method = RequestMethod.GET)
-    public List<Long> getVolumesBySymbol(@PathVariable(value = "symbol", required = false) String symbol) {
-        return getVolumesDataBySymbol(symbol);
+    public List<ChartSeries> getVolumesBySymbol(@PathVariable(value = "symbol", required = false) String symbol) {
+        Date fromDate = Date.from(LocalDateTime.now().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return getVolumesDataBySymbol(symbol, fromDate);
     }
 
-    public List<Long> getVolumesDataBySymbol(String symbol) {
-        ZoneId zoneUS = ZoneId.of("America/New_York");
-        ZonedDateTime timePast = LocalDate.now().atStartOfDay(zoneUS);
-        Date datePastUS = Date.from(timePast.toLocalDateTime().atZone(ZoneId.systemDefault()).toInstant());
-        Iterable<StatsGrid> iterator = statsGridCacheRepository.findAllBySymbolAndDateAfter(symbol, datePastUS);
+    public List<ChartSeries> getVolumesDataBySymbol(String symbol, Date fromDate) {
+        Iterable<StatsGrid> iterator = statsGridCacheRepository.findAllBySymbolAndDateAfter(symbol, fromDate);
         List<StatsGrid> statsGrids = StreamSupport
                 .stream(iterator.spliterator(), true)
                 .collect(Collectors.toList());
 
-        List<Long> volumes = statsGrids.stream().map(statsGrid -> statsGrid.getLatestVolume()).collect(Collectors.toList());
-        return volumes;
+        List<ChartSeries> chartSeriesList = statsGrids.stream()
+                        .map(statsGrid -> {
+                            ChartSeries chartSeries = new ChartSeries(statsGrid.getTime_part(), statsGrid.getLatestVolume(), statsGrid.getpRange());
+                            return chartSeries;
+                        })
+                        .collect(Collectors.toList());
+        return chartSeriesList;
     }
 
 

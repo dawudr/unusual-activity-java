@@ -17,6 +17,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {SymbolService} from "../../symbol/symbol.service";
 import {Symbol} from "../../symbol/symbol";
 import {StockService} from "../stock.service";
+import {StockSparklineComponent} from "../stock-sparkline/stock-sparkline.component";
 
 // See https://stackoverflow.com/questions/44947551/angular2-4-refresh-data-realtime
 // https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription/41177163#41177163
@@ -93,6 +94,8 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     timeOut = 30000;
     maxOpened: 10;
 
+
+
     loadingIndicator: boolean = true;
     totalRows: any = [];
     @ViewChild(DatatableComponent) table: DatatableComponent;
@@ -100,7 +103,6 @@ export class StockNotificationsComponent implements OnInit, OnDestroy {
     private lastInserted: number[] = [];
 
     @ViewChild(ToastContainerDirective) toastContainer: ToastContainerDirective;
-
 
     constructor(private router: Router,
                 private notificationsService: NotificationsService,
