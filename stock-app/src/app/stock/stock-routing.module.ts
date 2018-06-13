@@ -15,7 +15,7 @@ const routes: Routes = [
   {path: 'stock/notify', component: StockNotificationsComponent},
   {path: 'stock/notify/:symbol', component: StockNotificationsComponent},
   {path: 'features', component: FeaturesComponent},
-  {path: '', component: FeaturesComponent}
+  {path: '', component: StockNotificationsComponent}
 ];
 
 
